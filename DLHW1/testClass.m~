@@ -4,7 +4,6 @@ classdef testClass
     
     properties
         list= [1 2 3 4 5];
-        x=2;
     end
     
     methods
@@ -12,8 +11,7 @@ classdef testClass
             y=max(obj.list);
         end
         
-        function y=call(obj,n)
-            y=sigmoid(n);
+        function y=call(x)
         end
     end
     
