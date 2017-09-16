@@ -1,4 +1,4 @@
-classdef ANN
+classdef ANN < handle
     %UNTITLED4 Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -7,9 +7,9 @@ classdef ANN
         layers = [];
         num_of_layers = 0;
         biases=[];
-        weights={};
-        preactication=[];
-        postactivation=[];
+        weights={}; % for 2 hidden layers 100*784/100*100/10*100
+        preactication=[]; % for 2 hidden layers 784/100/100/10
+        postactivation={}; % for 2 hidden layers 784/100/100/10
         output=[];
         x_train=[];
         y_train=[];
@@ -25,8 +25,11 @@ classdef ANN
             [obj.x_train,obj.y_train,obj.x_validate,obj.y_validate,obj.x_test,obj.y_test] = dataLoad();
         end
         
-        function show_x_train(obj)
-            obj.x_train
+        function forward_prop(obj,x)
+        end
+        
+        function y=show_x_train(obj)
+            y=obj.x_train;
         end
     end
     
