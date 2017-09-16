@@ -5,6 +5,7 @@ classdef testClass
     properties
         list= [1 2 3 4 5];
         x=2;
+        y=0;
     end
     
     methods
