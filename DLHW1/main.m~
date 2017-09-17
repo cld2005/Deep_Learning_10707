@@ -1,9 +1,0 @@
-[x_train,y_train,x_validate,y_validate,x_test,y_test] = dataLoad();
-layers = [];
-num_of_layers = 0;
-biases=[];
-weights=[];
-preactication=[];
-postactivation=[];
-
-
