@@ -21,20 +21,20 @@ classdef ANN < handle
     end
     
     methods
-        function init(obj,num_hidden_layer)
+        function init(obj,num_hidden_layer,num_hidden_neuron)
             obj.num_of_layers = num_hidden_layer+2;
             obj.layers(end+1)=784;% input layer is always 784
             for i=1:num_hidden_layer
-                 obj.layers(end+1)=100; % add hidden layers
+                 obj.layers(end+1)=num_hidden_neuron; % add hidden layers
             end
             obj.layers(end+1)=10; % output layer
             
-            weigits_size = horzcat(transpose(obj.layers(2:end)),transpose(obj.layers(1:end-1)))
+            weigits_size = horzcat(transpose(obj.layers(2:end)),transpose(obj.layers(1:end-1)));
             
             for i=2:obj.num_of_layers
                 size_x = weigits_size(i-1,1);
                 size_y =weigits_size(i-1,2);
-                obj.weights{i}=rand(size_x,size_y);
+                obj.weights{i}=rand(size_x,size_y); % the first layer does not have weights
             end
             
             for i=1:length(obj.layers)
@@ -67,12 +67,40 @@ classdef ANN < handle
         end
         
         function [d_weight, d_bias] = back_prop (obj,y)
+            d_weight={};
+            d_bias={};
             result = zeros(10,1);
             result(y)=1;
             
+            grad_out = obj.output- result(y);
+            
+            for i=(obj.num_of_layers):-1:2%first layer is the input x
+                
+                d_weight{i}=dot(grad_out,transpose(obj.postactivation{i-1}));%?????? check 
+                d_bias{i}=grad_out;
+                grad_h = dot(transpose(obj.weigths{i}),grad_out);
+                grad_out=grad_h.*d_sigmoid(obj.preactication{i-1});
+          
+            end
             
             
             
+            
+        end
+        
+        function [train_error,vali_error] = train(obj,num_hidden_layer,num_hidden_neuron,learning_rate,batch_size,epoches,momentum)
+        obj.init(num_hidden_layer,num_hidden_neuron);
+        train_error=[];
+        vali_error=[];
+        
+        batch_d_weight={};
+        for i=1:num_of_layers
+            batch_d_weight{i} = zeros(size(obj.weigths{i},2),1);
+        end 
+        batch_d_bias={};
+        
+        
+        
         end
         
         
