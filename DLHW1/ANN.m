@@ -34,7 +34,7 @@ classdef ANN < handle
             for i=2:obj.num_of_layers
                 size_x = weigits_size(i-1,1);
                 size_y =weigits_size(i-1,2);
-                obj.weights{i}=rand(size_x,size_y); % the first layer does not have weights
+                obj.weights{i}=2*(rand(size_x,size_y)-0.5); % the first layer does not have weights
             end
             
             for i=1:length(obj.layers)
@@ -88,6 +88,12 @@ classdef ANN < handle
             
         end
         
+        function zero_cell_array = create_new_all_zero (cell_array)
+            zero_cell_array={};
+            for i =1:size(cell_array,2)
+                zero_cell_array{i} = zeros(size(cell_array{i},1),cell_array{i},2);
+            end
+        end
         function [train_error,vali_error] = train(obj,num_hidden_layer,num_hidden_neuron,learning_rate,batch_size,epoches,momentum)
         obj.init(num_hidden_layer,num_hidden_neuron);
         train_error=[];
@@ -96,29 +102,21 @@ classdef ANN < handle
                 sample_count=0;
                 epoch_cross_entropy_error=0;
                 epoch_success_count=0;
-                batch_d_weight={};
                 
-                for i=1:obj.num_of_layers
-                    batch_d_weight{i} = zeros(size(obj.weigths{i},1),size(obj.weigths{i},2));
-                end 
-                batch_d_bias={};
+                batch_d_weight=create_new_all_zero (obj.weigths);    
+         
+                batch_d_bias=create_new_all_zero(obj.biases);
 
-                for i =1:obj.num_of_layers
-                    batch_d_bias = zeros(size(obj.biases{i},1),size(obj.biases{i},2));
-                end
+       
 
                 
                 for batch = 0:3000/batch_size-1
                     
-                    d_weight={};
-                    for i=1:obj.num_of_layers
-                        d_weight{i} = zeros(size(obj.weigths{i},1),size(obj.weigths{i},2));
-                    end 
+                    d_weight=zero_cell_array(obj.weigths);
+           
 
-                    d_bias={};
-                    for i =1:obj.num_of_layers
-                        d_bias{i} = zeros(size(obj.biases{i},1),size(obj.biases{i},2));
-                    end
+                    d_bias=zero_cell_array(obj.biases);
+            
                     
                     for sub_index = 1:batch_size
                         sample_index = batch*batch_size+sub_index;
@@ -128,34 +126,34 @@ classdef ANN < handle
                         sample_count=sample_count+1;
                         [sub_d_weight,sub_d_bias] = obj.back_prop();
                         
-                        for i=1:size(d_weight,1)
+                        for i=1:size(d_weight,2)
                             d_weight{i}=d_weight{i}+sub_d_weight{i};
                         end
                         
                         
-                        for i=1:size(d_bias,1)
+                        for i=1:size(d_bias,2)
                             d_bias{i}=d_bias{i}+sub_d_bias{i};
                         end
                     end
                     
                     
-                    for i=1:size(d_weight,1)
+                    for i=1:size(d_weight,2)
                         d_weight{i}=momentum*batch_d_weight{i}+(learning_rate/batch_size)*d_weight{i};
                     end
                     batch_d_weight=d_weight;
                         
-                    for i=1:size(d_bias,1)
+                    for i=1:size(d_bias,2)
                         d_bias{i}=momentum*batch_d_bias{i}+(learning_rate/batch_size)*d_bias{i};
                     end
                     batch_d_bias=d_bias;
                     
-                    for i=1:size(obj.biases,1)
+                    for i=1:size(obj.biases,2)
                     
                         obj.biases{i} = obj.biases{i} - d_bias{i};
                     
                     end
                     
-                    for i=1:size(obj.weights,1)
+                    for i=1:size(obj.weights,2)
                     
                         obj.weights{i} = obj.weights{i} - d_weight{i};
                     

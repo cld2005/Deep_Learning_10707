@@ -34,7 +34,7 @@ classdef ANN < handle
             for i=2:obj.num_of_layers
                 size_x = weigits_size(i-1,1);
                 size_y =weigits_size(i-1,2);
-                obj.weights{i}=rand(size_x,size_y); % the first layer does not have weights
+                obj.weights{i}=2*(rand(size_x,size_y)-0.5); % the first layer does not have weights
             end
             
             for i=1:length(obj.layers)
@@ -88,6 +88,8 @@ classdef ANN < handle
             
         end
         
+        fucntion zero_cell_array = create_new_all_zero (cell_array)
+        
         function [train_error,vali_error] = train(obj,num_hidden_layer,num_hidden_neuron,learning_rate,batch_size,epoches,momentum)
         obj.init(num_hidden_layer,num_hidden_neuron);
         train_error=[];
@@ -128,34 +130,34 @@ classdef ANN < handle
                         sample_count=sample_count+1;
                         [sub_d_weight,sub_d_bias] = obj.back_prop();
                         
-                        for i=1:size(d_weight,1)
+                        for i=1:size(d_weight,2)
                             d_weight{i}=d_weight{i}+sub_d_weight{i};
                         end
                         
                         
-                        for i=1:size(d_bias,1)
+                        for i=1:size(d_bias,2)
                             d_bias{i}=d_bias{i}+sub_d_bias{i};
                         end
                     end
                     
                     
-                    for i=1:size(d_weight,1)
+                    for i=1:size(d_weight,2)
                         d_weight{i}=momentum*batch_d_weight{i}+(learning_rate/batch_size)*d_weight{i};
                     end
                     batch_d_weight=d_weight;
                         
-                    for i=1:size(d_bias,1)
+                    for i=1:size(d_bias,2)
                         d_bias{i}=momentum*batch_d_bias{i}+(learning_rate/batch_size)*d_bias{i};
                     end
                     batch_d_bias=d_bias;
                     
-                    for i=1:size(obj.biases,1)
+                    for i=1:size(obj.biases,2)
                     
                         obj.biases{i} = obj.biases{i} - d_bias{i};
                     
                     end
                     
-                    for i=1:size(obj.weights,1)
+                    for i=1:size(obj.weights,2)
                     
                         obj.weights{i} = obj.weights{i} - d_weight{i};
                     
@@ -164,14 +166,18 @@ classdef ANN < handle
                     ave_error = epoch_cross_entropy_error/sample_count;
                     classification_err_rate = 100*(1-epoch_success_count/sample_count);
                     
+                    [validation_err,validation_classification_succ_rate ]=  obj.validate();
+                    train_error=vertcat(train_error,[ave_error,classification_err_rate]);
+                    vali_error = vertcat(vali_error,[validation_err,validation_classification_succ_rate]);
                     
                 end % end batch
             end % end epoch
         end % end train
         
-        function [corss_entropy_error, correct_rate] = validate(obj)
-        
-        
+        function [corss_entropy_error_rate, correct_rate] = validate(obj)
+            [corss_entropy_error,correct]=forward_prop(obj.x_validate,obj.y_validate);
+            corss_entropy_error_rate= mean(corss_entropy_error);
+            correct_rate = mean(correct)*100;
         end
 
         
