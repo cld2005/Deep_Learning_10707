@@ -94,10 +94,14 @@ classdef ANN < handle
         vali_error=[];
         
         batch_d_weight={};
-        for i=1:num_of_layers
-            batch_d_weight{i} = zeros(size(obj.weigths{i},2),1);
+        for i=1:obj.num_of_layers
+            batch_d_weight{i} = zeros(size(obj.weigths{i},1),size(obj.weigths{i},2));
         end 
         batch_d_bias={};
+        
+        for i =1:obj.num_of_layers
+            batch_d_bias = zeros(size(obj.biases{i},1),size(obj.biases{i},2))
+        end
         
         
         
