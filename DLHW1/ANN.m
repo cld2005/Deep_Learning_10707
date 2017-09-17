@@ -126,38 +126,19 @@ classdef ANN < handle
                         sample_count=sample_count+1;
                         [sub_d_weight,sub_d_bias] = obj.back_prop();
                         
-                        for i=1:size(d_weight,2)
-                            d_weight{i}=d_weight{i}+sub_d_weight{i};
-                        end
-                        
-                        
-                        for i=1:size(d_bias,2)
-                            d_bias{i}=d_bias{i}+sub_d_bias{i};
-                        end
+                        d_weight= cellfun(@(c1,c2) c1+c2,d_weight,sub_d_weight,'UniformOutput',false);
+                        d_bias= cellfun(@(c1,c2) c1+c2,d_bias,sub_d_bias,'UniformOutput',false);
+
                     end
                     
-                    
-                    for i=1:size(d_weight,2)
-                        d_weight{i}=momentum*batch_d_weight{i}+(learning_rate/batch_size)*d_weight{i};
-                    end
+                    d_weight=cellfun(@(c1,c2) momentum*c1+learning_rate*(c2/batch_size) ,batch_d_weight,d_weight,'UniformOutput',false);
                     batch_d_weight=d_weight;
-                        
-                    for i=1:size(d_bias,2)
-                        d_bias{i}=momentum*batch_d_bias{i}+(learning_rate/batch_size)*d_bias{i};
-                    end
+                    d_bias=cellfun(@(c1,c2) momentum*c1+learning_rate*(c2/batch_size) ,batch_d_bias,d_bias,'UniformOutput',false);
                     batch_d_bias=d_bias;
                     
-                    for i=1:size(obj.biases,2)
-                    
-                        obj.biases{i} = obj.biases{i} - d_bias{i};
-                    
-                    end
-                    
-                    for i=1:size(obj.weights,2)
-                    
-                        obj.weights{i} = obj.weights{i} - d_weight{i};
-                    
-                    end
+                    obj.weights = cellfun(@(c1,c2) c1-c2,obj.weights,d_weight,'UniformOutput',false);
+                    obj.biases = cellfun(@(c1,c2) c1-c2,obj.biases,d_bias,'UniformOutput',false);
+
                     
                     ave_error = epoch_cross_entropy_error/sample_count;
                     classification_err_rate = 100*(1-epoch_success_count/sample_count);
@@ -174,6 +155,10 @@ classdef ANN < handle
             [corss_entropy_error,correct]=forward_prop(obj.x_validate,obj.y_validate);
             corss_entropy_error_rate= mean(corss_entropy_error);
             correct_rate = mean(correct)*100;
+        end
+        
+        function cell_arry = update_gradiant (obj,c1,c2,momentum,learning_rate,batch_size)
+            cell_arry=momentum*c1+learning_rate*(c2/batch_size);
         end
 
         

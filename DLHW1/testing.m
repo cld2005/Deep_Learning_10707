@@ -1,7 +1,10 @@
-C={}
-A={[1,2,3,4,5;6,7,8,9,10];[1,2,3;4,5,6]}
-B={[1,2,3,4,5;6,7,8,9,10];[1,2,3;4,5,6]}
-for i=1:2
-    C{i}=0.8*A{i}+B{i};
-end
-A=C;
+% batch_size=10;
+% for batch = 0:3000/batch_size-1
+%     for sub_index = 1:batch_size
+%         sample_index = batch*batch_size+sub_index;
+%         fprintf('%d\n',sample_index);
+%     end 
+%     fprintf('new batch\n');
+% end
+
+
