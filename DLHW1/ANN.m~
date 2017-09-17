@@ -32,8 +32,8 @@ classdef ANN < handle
             weigits_size = horzcat(transpose(obj.layers(2:end)),transpose(obj.layers(1:end-1)))
             
             for i=2:obj.num_of_layers
-                size_x = weigits_size(i-1,1)
-                size_y =weigits_size(i-1,2)
+                size_x = weigits_size(i-1,1);
+                size_y =weigits_size(i-1,2);
                 obj.weights{i}=rand(size_x,size_y);
             end
             
@@ -48,16 +48,33 @@ classdef ANN < handle
             [obj.x_train,obj.y_train,obj.x_validate,obj.y_validate,obj.x_test,obj.y_test] = dataLoad();
         end
         
-        function forward_prop(obj,x)
+        function [corss_entropy_error, correct]=forward_prop(obj,x,y)
             obj.postactivation{1}=x;
+            result = zeros(10,1);
+            result(y)=1;
             
             for i = 2:obj.num_of_layers
                 obj.preactlayer{i} = dot(obj.weigths{i},obj.postactivation{i-1})+obj.biases(i);
                 obj.postactivation{i} = sigmoid(obj.preactlayer{i});
             end
             
-            obj.output = softmax(obj.postactivation)
+            obj.output = softmax(obj.postactivation{end});
+            
+            corss_entropy_error = -1*log(dot(obj.output,result'));
+            [~,indout]=max( obj.output);
+            [~,indres]=max( result);
+            correct= (indout==indres);
         end
+        
+        function [d_weight, d_bias] = back_prop (obj,y)
+            result = zeros(10,1);
+            result(y)=1;
+            
+            
+            
+            
+        end
+        
         
         function y=show_x_train(obj)
             y=obj.x_train;

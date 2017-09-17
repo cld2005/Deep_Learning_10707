@@ -32,8 +32,8 @@ classdef ANN < handle
             weigits_size = horzcat(transpose(obj.layers(2:end)),transpose(obj.layers(1:end-1)))
             
             for i=2:obj.num_of_layers
-                size_x = weigits_size(i-1,1)
-                size_y =weigits_size(i-1,2)
+                size_x = weigits_size(i-1,1);
+                size_y =weigits_size(i-1,2);
                 obj.weights{i}=rand(size_x,size_y);
             end
             
@@ -65,6 +65,16 @@ classdef ANN < handle
             [~,indres]=max( result);
             correct= (indout==indres);
         end
+        
+        function [d_weight, d_bias] = back_prop (obj,y)
+            result = zeros(10,1);
+            result(y)=1;
+            
+            
+            
+            
+        end
+        
         
         function y=show_x_train(obj)
             y=obj.x_train;
