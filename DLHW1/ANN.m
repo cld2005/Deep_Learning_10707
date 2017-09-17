@@ -92,30 +92,31 @@ classdef ANN < handle
         obj.init(num_hidden_layer,num_hidden_neuron);
         train_error=[];
         vali_error=[];
-        for epoch = 1:epoches
-            batch_d_weight={};
-            for i=1:obj.num_of_layers
-                batch_d_weight{i} = zeros(size(obj.weigths{i},1),size(obj.weigths{i},2));
-            end 
-            batch_d_bias={};
-
-            for i =1:obj.num_of_layers
-                batch_d_bias = zeros(size(obj.biases{i},1),size(obj.biases{i},2));
-            end
-            
-            for batch =1:batch_size
-                d_weight={}
+            for epoch = 1:epoches
+                batch_d_weight={};
                 for i=1:obj.num_of_layers
-                    d_weight{i} = zeros(size(obj.weigths{i},1),size(obj.weigths{i},2));
+                    batch_d_weight{i} = zeros(size(obj.weigths{i},1),size(obj.weigths{i},2));
                 end 
-                
-                d_bias={};
+                batch_d_bias={};
+
                 for i =1:obj.num_of_layers
-                    d_bias{i} = zeros(size(obj.biases{i},1),size(obj.biases{i},2));
+                    batch_d_bias = zeros(size(obj.biases{i},1),size(obj.biases{i},2));
                 end
-                
+
+                for batch =1:batch_size
+                    d_weight={}
+                    for i=1:obj.num_of_layers
+                        d_weight{i} = zeros(size(obj.weigths{i},1),size(obj.weigths{i},2));
+                    end 
+
+                    d_bias={};
+                    for i =1:obj.num_of_layers
+                        d_bias{i} = zeros(size(obj.biases{i},1),size(obj.biases{i},2));
+                    end
 
 
+
+                end
             end
         end
 

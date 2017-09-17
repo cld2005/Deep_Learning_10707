@@ -3,7 +3,7 @@ fprintf('exist x_train %d ...\n',exist('x_train'))
 if(exist('x_train')==0)
     fprintf('reading xtrain ...\n')
     tr_data=textread('digitstrain.txt','','delimiter',',');
-    x_train=tr_data(:,1:784);
+    tr_data = tr_data(randperm(size(tr_data,1)),:);%shuffle data
     y_train=tr_data(:,785);
 end
 if(exist('x_validate')==0)
