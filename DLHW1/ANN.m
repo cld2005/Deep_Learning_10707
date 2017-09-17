@@ -88,7 +88,7 @@ classdef ANN < handle
             result(int32(y)+1)=int32(1);
             %obj.output
             %result
-            grad_out = (obj.output- result).*arrayfun(@d_sigmoid,obj.preactication{end});
+            grad_out = (obj.output- result);
             
             for i=(obj.num_of_layers):-1:2%first layer is the input x
                 %i
@@ -179,8 +179,7 @@ classdef ANN < handle
                         fprintf('training cross entropy %f, error rate %f\n',ave_error,classification_err_rate);
                         fprintf('validate cross entropy %f, error rate %f\n',validation_err,100-validation_classification_succ_rate);
                     end
-                    
-                   
+
                     
                 end % end batch
             end % end epoch
