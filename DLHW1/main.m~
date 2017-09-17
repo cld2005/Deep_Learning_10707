@@ -1,5 +1,5 @@
 ann = ANN();
 ann.init(1,100);
-ann.ANN_load_data();
+ann.ANN_load_data
 
 

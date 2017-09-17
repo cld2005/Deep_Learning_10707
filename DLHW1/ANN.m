@@ -43,6 +43,7 @@ classdef ANN < handle
                 obj.postactivation{i} = zeros(obj.layers(i),1);
             end
             
+            
         end
         function ANN_load_data (obj)
             [obj.x_train,obj.y_train,obj.x_validate,obj.y_validate,obj.x_test,obj.y_test] = dataLoad();
