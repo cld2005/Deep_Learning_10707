@@ -88,10 +88,10 @@ classdef ANN < handle
             
         end
         
-        function zero_cell_array = create_new_all_zero (cell_array)
+        function zero_cell_array = create_new_all_zero (obj,cell_array)
             zero_cell_array={};
             for i =1:size(cell_array,2)
-                zero_cell_array{i} = zeros(size(cell_array{i},1),cell_array{i},2);
+                zero_cell_array{i} = zeros(size(cell_array{i},1),size(cell_array{i},2));
             end
         end
         function [train_error,vali_error] = train(obj,num_hidden_layer,num_hidden_neuron,learning_rate,batch_size,epoches,momentum)
