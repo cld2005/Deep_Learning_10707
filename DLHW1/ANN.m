@@ -70,7 +70,8 @@ classdef ANN < handle
                 %fprintf('size of temp2 %d %d\n',size(temp2,1),size(temp2,2));
                 obj.preactication{i} = obj.weights{i}*obj.postactivation{i-1}+obj.biases{i};
                 %fprintf('obj.postactivation{i}');
-                obj.postactivation{i} = transpose(sigmoid(obj.preactication{i}));
+                %obj.postactivation{i} = transpose(sigmoid(obj.preactication{i}));
+                obj.postactivation{i} = arrayfun(@sigmoid,obj.preactication{i});
             end
             
             obj.output = softmax(obj.postactivation{end});
@@ -178,11 +179,10 @@ classdef ANN < handle
                 [validation_err,validation_classification_succ_rate ]=  obj.validate();
                 train_error=vertcat(train_error,[ave_error,classification_err_rate]);
                 vali_error = vertcat(vali_error,[validation_err,validation_classification_succ_rate]);
-                if mod(batch,100)==0
-                    fprintf('batch %d\n',batch)
-                    fprintf('training cross entropy %f, error rate %f\n',ave_error,classification_err_rate);
-                    fprintf('validate cross entropy %f, error rate %f\n',validation_err,100-validation_classification_succ_rate);
-                end
+            
+                fprintf('batch %d\n',batch)
+                fprintf('training cross entropy %f, error rate %f\n',ave_error,classification_err_rate);
+                fprintf('validate cross entropy %f, error rate %f\n',validation_err,100-validation_classification_succ_rate);
             end % end epoch
         end % end train
         
