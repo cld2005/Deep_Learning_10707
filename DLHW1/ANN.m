@@ -127,7 +127,7 @@ classdef ANN < handle
                 if epoch>50
                     learning_rate=0.005;
                 end
-                fprintf("Epoch %d\n",epoch);
+                fprintf('Epoch %d\n',epoch);
                 sample_count=0;
                 epoch_cross_entropy_error=0;
                 epoch_success_count=0;
