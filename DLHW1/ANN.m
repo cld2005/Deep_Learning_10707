@@ -126,7 +126,7 @@ classdef ANN < handle
                 epoch_success_count=0;
                 
                 batch_d_weight=obj.create_new_all_zero(obj.weights);    
-         
+
                 batch_d_bias=obj.create_new_all_zero(obj.biases);
                 
                 
@@ -168,20 +168,21 @@ classdef ANN < handle
                     obj.biases = cellfun(@(c1,c2) c1-c2,obj.biases,d_bias,'UniformOutput',false);
 
                     
-                    ave_error = epoch_cross_entropy_error/sample_count;
-                    classification_err_rate = 100*(1-epoch_success_count/sample_count);
-                    
-                    [validation_err,validation_classification_succ_rate ]=  obj.validate();
-                    train_error=vertcat(train_error,[ave_error,classification_err_rate]);
-                    vali_error = vertcat(vali_error,[validation_err,validation_classification_succ_rate]);
-                    if mod(batch,100)==0
-                        fprintf('batch %d\n',batch)
-                        fprintf('training cross entropy %f, error rate %f\n',ave_error,classification_err_rate);
-                        fprintf('validate cross entropy %f, error rate %f\n',validation_err,100-validation_classification_succ_rate);
-                    end
+
 
                     
                 end % end batch
+                ave_error = epoch_cross_entropy_error/sample_count;
+                classification_err_rate = 100*(1-epoch_success_count/sample_count);
+
+                [validation_err,validation_classification_succ_rate ]=  obj.validate();
+                train_error=vertcat(train_error,[ave_error,classification_err_rate]);
+                vali_error = vertcat(vali_error,[validation_err,validation_classification_succ_rate]);
+                if mod(batch,100)==0
+                    fprintf('batch %d\n',batch)
+                    fprintf('training cross entropy %f, error rate %f\n',ave_error,classification_err_rate);
+                    fprintf('validate cross entropy %f, error rate %f\n',validation_err,100-validation_classification_succ_rate);
+                end
             end % end epoch
         end % end train
         

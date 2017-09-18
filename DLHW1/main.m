@@ -1,9 +1,9 @@
 num_hidden_layer=1;
 num_hidden_neuron=100;
 learning_rate=0.1;
-batch_size=10;
-epoches=30;
-momentum=0.9;
+batch_size=20;
+epoches=100;
+momentum=1;
 ann = ANN();
 %ann.init(num_hidden_layer,num_hidden_neuron);
 ann.ANN_load_data();
