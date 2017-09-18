@@ -121,6 +121,12 @@ classdef ANN < handle
         train_error=[];
         vali_error=[];
             for epoch = 1:epoches
+                if epoch>20
+                    learning_rate=0.01;
+                end
+                if epoch>50
+                    learning_rate=0.005;
+                end
                 fprintf("Epoch %d\n",epoch);
                 sample_count=0;
                 epoch_cross_entropy_error=0;
@@ -201,9 +207,7 @@ classdef ANN < handle
 
         end
         
-        function cell_arry = update_gradiant (obj,c1,c2,momentum,learning_rate,batch_size)
-            cell_arry=momentum*c1+learning_rate*(c2/batch_size);
-        end
+
 
         
 
