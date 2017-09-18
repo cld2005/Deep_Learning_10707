@@ -89,7 +89,7 @@ classdef ANN < handle
             result(int32(y)+1)=int32(1);
             %obj.output
             %result
-            grad_out = (obj.output- result);
+            grad_out = (obj.output- result).*arrayfun(@d_sigmoid,obj.preactication{end});
             
             for i=(obj.num_of_layers):-1:2%first layer is the input x
                 %i
@@ -165,14 +165,14 @@ classdef ANN < handle
 
                     end
                     
-                    d_weight=cellfun(@(c1,c2) momentum*c1+(learning_rate/batch_size)*(c2) ,batch_d_weight,d_weight,'UniformOutput',false);
+                    d_weight=cellfun(@(c1,c2) momentum*c1+(1.0/batch_size)*(c2) ,batch_d_weight,d_weight,'UniformOutput',false);
                     batch_d_weight=d_weight;
-                    d_bias=cellfun(@(c1,c2) momentum*c1+(learning_rate/batch_size)*(c2) ,batch_d_bias,d_bias,'UniformOutput',false);
+                    d_bias=cellfun(@(c1,c2) momentum*c1+(1.0/batch_size)*(c2) ,batch_d_bias,d_bias,'UniformOutput',false);
                     batch_d_bias=d_bias;
                     
-                    obj.weights = cellfun(@(c1,c2) c1-c2,obj.weights,d_weight,'UniformOutput',false);
+                    obj.weights = cellfun(@(c1,c2) c1-learning_rate*c2,obj.weights,d_weight,'UniformOutput',false);
                    
-                    obj.biases = cellfun(@(c1,c2) c1-c2,obj.biases,d_bias,'UniformOutput',false);
+                    obj.biases = cellfun(@(c1,c2) c1-learning_rate*c2,obj.biases,d_bias,'UniformOutput',false);
 
                     
 
