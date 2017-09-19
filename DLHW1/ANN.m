@@ -71,7 +71,11 @@ classdef ANN < handle
                 obj.preactication{i} = obj.weights{i}*obj.postactivation{i-1}+obj.biases{i};
                 %fprintf('obj.postactivation{i}');
                 %obj.postactivation{i} = transpose(sigmoid(obj.preactication{i}));
+                if i~= obj.num_of_layers
                 obj.postactivation{i} = arrayfun(@sigmoid,obj.preactication{i});
+                elseif i==obj.num_of_layers
+                obj.postactivation{i}=obj.preactication{i};
+                end
             end
             
             obj.output = softmax(obj.postactivation{end});
@@ -89,8 +93,8 @@ classdef ANN < handle
             result(int32(y)+1)=int32(1);
             %obj.output
             %result
-            grad_out = (obj.output- result).*arrayfun(@d_sigmoid,obj.preactication{end});
-            
+            %grad_out = (obj.output- result).*arrayfun(@d_sigmoid,obj.preactication{end});
+            grad_out = (obj.output- result);
             for i=(obj.num_of_layers):-1:2%first layer is the input x
                 %i
                 %fprintf('size of grad_out %d %d\n',size(grad_out,1),size(grad_out,2));
@@ -121,12 +125,7 @@ classdef ANN < handle
         train_error=[];
         vali_error=[];
             for epoch = 1:epoches
-                if epoch>20
-                    learning_rate=0.01;
-                end
-                if epoch>50
-                    learning_rate=0.005;
-                end
+
                 fprintf('Epoch %d\n',epoch);
                 sample_count=0;
                 epoch_cross_entropy_error=0;
