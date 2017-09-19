@@ -152,10 +152,7 @@ classdef ANN < handle
                    
                     obj.biases = cellfun(@(c1,c2) c1-learning_rate*c2,obj.biases,d_bias,'UniformOutput',false);
 
-                    
 
-
-                    
                 end % end batch
                 ave_error = epoch_cross_entropy_error/sample_count;
                 classification_err_rate = 100*(1-epoch_success_count/sample_count);
