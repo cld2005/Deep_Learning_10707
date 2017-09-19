@@ -44,8 +44,7 @@ classdef ANN < handle
                 obj.preactication{i} = zeros(obj.layers(i),1);
                 obj.postactivation{i} = zeros(obj.layers(i),1);
             end
-            %fprintf('obj.biases:\n')
-            %obj.biases
+
             
             
         end
@@ -59,19 +58,13 @@ classdef ANN < handle
             result = zeros(10,1);
             
             result(int32(y)+1)=int32(1);
-            %fprintf('obj.biases inside forward:\n')
-            %obj.biases
             for i = 2:obj.num_of_layers
-                %fprintf('size of obj.weights{i} %d %d',size(obj.weights{i},1),size(obj.weights{i},2));
-                %fprintf('size of postactivation{i-1} %d %d',size(obj.postactivation{i-1},1),size(obj.postactivation{i-1},2));
-                %temp1 = obj.weights{i}*transpose(obj.postactivation{i-1});
-                %temp2 = obj.biases{i};
-                %fprintf('size of temp1 %d %d\n',size(temp1,1),size(temp1,2));
-                %fprintf('size of temp2 %d %d\n',size(temp2,1),size(temp2,2));
                 obj.preactication{i} = obj.weights{i}*obj.postactivation{i-1}+obj.biases{i};
-                %fprintf('obj.postactivation{i}');
-                %obj.postactivation{i} = transpose(sigmoid(obj.preactication{i}));
+                if i~= obj.num_of_layers
                 obj.postactivation{i} = arrayfun(@sigmoid,obj.preactication{i});
+                elseif i==obj.num_of_layers
+                obj.postactivation{i}=obj.preactication{i};
+                end
             end
             
             obj.output = softmax(obj.postactivation{end});
@@ -87,18 +80,12 @@ classdef ANN < handle
             result = zeros(10,1);
  
             result(int32(y)+1)=int32(1);
-            %obj.output
-            %result
-            grad_out = (obj.output- result).*arrayfun(@d_sigmoid,obj.preactication{end});
-            
+
+            grad_out = (obj.output- result);
             for i=(obj.num_of_layers):-1:2%first layer is the input x
-                %i
-                %fprintf('size of grad_out %d %d\n',size(grad_out,1),size(grad_out,2));
-                %fprintf('size of transpose(obj.postactivation{i-1}) %d %d\n',size(transpose(obj.postactivation{i-1}),1),size(transpose(obj.postactivation{i-1}),2));
                 d_weight{i}=grad_out*(transpose(obj.postactivation{i-1}));%?????? check 
                 d_bias{i}=grad_out;
                 grad_h = transpose(obj.weights{i})*grad_out;
-                %fprintf('size of obj.preactication{i-1} %d %d\n',size(obj.preactication{i-1},1),size(obj.preactication{i-1},2));
                 grad_out=grad_h.*arrayfun(@d_sigmoid,obj.preactication{i-1});
           
             end
@@ -121,12 +108,7 @@ classdef ANN < handle
         train_error=[];
         vali_error=[];
             for epoch = 1:epoches
-                if epoch>20
-                    learning_rate=0.01;
-                end
-                if epoch>50
-                    learning_rate=0.005;
-                end
+
                 fprintf('Epoch %d\n',epoch);
                 sample_count=0;
                 epoch_cross_entropy_error=0;
@@ -145,22 +127,18 @@ classdef ANN < handle
                     d_weight=obj.create_new_all_zero(obj.weights);
 
                     d_bias=obj.create_new_all_zero(obj.biases);
-                    %d_bias
             
                     
                     for sub_index = 1:batch_size
                         sample_index = batch*batch_size+sub_index;
-                        %fprintf('foward\n');
                         [error_value,correct_count] = obj.forward_prop(obj.x_train(sample_index,:),obj.y_train(sample_index));
                         epoch_cross_entropy_error=epoch_cross_entropy_error+error_value;
                         epoch_success_count=epoch_success_count+correct_count;
                         sample_count=sample_count+1;
-                        %fprintf('backward\n');
                         [sub_d_weight,sub_d_bias] = obj.back_prop(obj.y_train(sample_index));
                         
                         d_weight= cellfun(@(c1,c2) c1+c2,d_weight,sub_d_weight,'UniformOutput',false);
-                        %d_bias
-                        %sub_d_bias
+                
                         d_bias= cellfun(@(c1,c2) c1+c2,d_bias,sub_d_bias,'UniformOutput',false);
 
                     end
@@ -174,45 +152,34 @@ classdef ANN < handle
                    
                     obj.biases = cellfun(@(c1,c2) c1-learning_rate*c2,obj.biases,d_bias,'UniformOutput',false);
 
-                    
 
-
-                    
                 end % end batch
                 ave_error = epoch_cross_entropy_error/sample_count;
                 classification_err_rate = 100*(1-epoch_success_count/sample_count);
 
-                [validation_err,validation_classification_succ_rate ]=  obj.validate();
+                [validation_err,validation_classification_err_rate ]=  obj.validate(obj.x_validate,obj.y_validate);
                 train_error=vertcat(train_error,[ave_error,classification_err_rate]);
-                vali_error = vertcat(vali_error,[validation_err,validation_classification_succ_rate]);
+                vali_error = vertcat(vali_error,[validation_err,validation_classification_err_rate]);
             
-                fprintf('batch %d\n',batch)
                 fprintf('training cross entropy %f, error rate %f\n',ave_error,classification_err_rate);
-                fprintf('validate cross entropy %f, error rate %f\n',validation_err,100-validation_classification_succ_rate);
+                fprintf('validate cross entropy %f, error rate %f\n',validation_err,validation_classification_err_rate);
             end % end epoch
         end % end train
         
-        function [corss_entropy_error_rate, correct_rate] = validate(obj)
-            corss_entropy_error=zeros(size(obj.x_validate,1),1);
-            correct=zeros(size(obj.x_validate,1),1);
-            for i=1:size(obj.x_validate,1)
-                [e,c]=obj.forward_prop(obj.x_validate(i,:),obj.y_validate(i));
+        function [corss_entropy_error_rate, error_rate] = validate(obj,x_validate,y_validate)
+            corss_entropy_error=zeros(size(x_validate,1),1);
+            correct=zeros(size(x_validate,1),1);
+            for i=1:size(x_validate,1)
+                [e,c]=obj.forward_prop(x_validate(i,:),y_validate(i));
                 corss_entropy_error(i)=e;
                 correct(i)=c;
             end
             
-            %[corss_entropy_error,correct]=arrayfun(@obj.forward_prop,obj.x_validate,obj.y_validate);
             corss_entropy_error_rate= mean(corss_entropy_error);
-            correct_rate = mean(correct)*100;
+            error_rate = 100- mean(correct)*100;
 
         end
-        
-
-
-        
-
-        
-        
+         
         function y=show_x_train(obj)
             y=obj.x_train;
         end
