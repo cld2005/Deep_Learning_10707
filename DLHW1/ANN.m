@@ -181,17 +181,17 @@ classdef ANN < handle
                 ave_error = epoch_cross_entropy_error/sample_count;
                 classification_err_rate = 100*(1-epoch_success_count/sample_count);
 
-                [validation_err,validation_classification_succ_rate ]=  obj.validate();
+                [validation_err,validation_classification_err_rate ]=  obj.validate();
                 train_error=vertcat(train_error,[ave_error,classification_err_rate]);
-                vali_error = vertcat(vali_error,[validation_err,validation_classification_succ_rate]);
+                vali_error = vertcat(vali_error,[validation_err,validation_classification_err_rate]);
             
                 fprintf('batch %d\n',batch)
                 fprintf('training cross entropy %f, error rate %f\n',ave_error,classification_err_rate);
-                fprintf('validate cross entropy %f, error rate %f\n',validation_err,100-validation_classification_succ_rate);
+                fprintf('validate cross entropy %f, error rate %f\n',validation_err,validation_classification_err_rate);
             end % end epoch
         end % end train
         
-        function [corss_entropy_error_rate, correct_rate] = validate(obj)
+        function [corss_entropy_error_rate, error_rate] = validate(obj)
             corss_entropy_error=zeros(size(obj.x_validate,1),1);
             correct=zeros(size(obj.x_validate,1),1);
             for i=1:size(obj.x_validate,1)
@@ -202,7 +202,7 @@ classdef ANN < handle
             
             %[corss_entropy_error,correct]=arrayfun(@obj.forward_prop,obj.x_validate,obj.y_validate);
             corss_entropy_error_rate= mean(corss_entropy_error);
-            correct_rate = mean(correct)*100;
+            error_rate = 100- mean(correct)*100;
 
         end
         
