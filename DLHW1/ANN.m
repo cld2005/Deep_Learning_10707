@@ -182,13 +182,7 @@ classdef ANN < handle
             error_rate = 100- mean(correct)*100;
 
         end
-        
-
-
-        
-
-        
-        
+         
         function y=show_x_train(obj)
             y=obj.x_train;
         end

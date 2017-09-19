@@ -2,7 +2,7 @@ num_hidden_layer=1;
 num_hidden_neuron=100;
 learning_rate=0.1;
 batch_size=20;
-epoches=3;
+epoches=200;
 momentum=0.9;
 ann = ANN();
 ann.ANN_load_data();
