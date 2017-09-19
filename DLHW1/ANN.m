@@ -164,7 +164,6 @@ classdef ANN < handle
                 train_error=vertcat(train_error,[ave_error,classification_err_rate]);
                 vali_error = vertcat(vali_error,[validation_err,validation_classification_err_rate]);
             
-                fprintf('batch %d\n',batch)
                 fprintf('training cross entropy %f, error rate %f\n',ave_error,classification_err_rate);
                 fprintf('validate cross entropy %f, error rate %f\n',validation_err,validation_classification_err_rate);
             end % end epoch
