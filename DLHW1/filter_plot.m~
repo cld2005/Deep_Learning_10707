@@ -1,0 +1,6 @@
+function filter_plot(ann,filters)
+%mat2gray
+for i=0:filters-1
+    minv=min(ann.weights{2}(1,:))
+    subplot(10,ceil(filters/10),i+1),imshow(uint8(255*mat2gray(reshape(ann.weights{2}(i+1,:),[28,28]))));
+end
