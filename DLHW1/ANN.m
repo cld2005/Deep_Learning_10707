@@ -39,7 +39,8 @@ classdef ANN < handle
             for i=2:obj.num_of_layers
                 size_x = weigits_size(i-1,1);
                 size_y =weigits_size(i-1,2);
-                obj.weights{i}=2*(rand(size_x,size_y)-0.5); % the first layer does not have weights
+                b=  sqrt(6)/(sqrt(obj.layers(i)+obj.layers(i-1)));
+                obj.weights{i}=2*b*(rand(size_x,size_y))-b; % the first layer does not have weights
                 obj.biases{i}  =  zeros(obj.layers(i),1);
             end
             
@@ -104,7 +105,7 @@ classdef ANN < handle
         
         function zero_cell_array = create_new_all_zero (~,cell_array)
             zero_cell_array={};
-            parfor i =1:size(cell_array,2)
+            for i =1:size(cell_array,2)
                 zero_cell_array{i} = zeros(size(cell_array{i},1),size(cell_array{i},2));
             end
         end
@@ -178,7 +179,7 @@ classdef ANN < handle
         function [corss_entropy_error_rate, error_rate] = validate(obj,x_validate,y_validate)
             corss_entropy_error=zeros(size(x_validate,1),1);
             correct=zeros(size(x_validate,1),1);
-            parfor i=1:size(x_validate,1)
+            for i=1:size(x_validate,1)
                 [e,c]=obj.forward_prop(x_validate(i,:),y_validate(i));
                 corss_entropy_error(i)=e;
                 correct(i)=c;
