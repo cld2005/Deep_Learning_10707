@@ -17,6 +17,8 @@ classdef ANN < handle
         y_validate=[];
         x_test=[];
         y_test=[];
+        train_error=[];
+        vali_error=[]
     
     end
     
@@ -160,10 +162,12 @@ classdef ANN < handle
                 [validation_err,validation_classification_err_rate ]=  obj.validate(obj.x_validate,obj.y_validate);
                 train_error=vertcat(train_error,[ave_error,classification_err_rate]);
                 vali_error = vertcat(vali_error,[validation_err,validation_classification_err_rate]);
-            
+
                 fprintf('training cross entropy %f, error rate %f\n',ave_error,classification_err_rate);
                 fprintf('validate cross entropy %f, error rate %f\n',validation_err,validation_classification_err_rate);
             end % end epoch
+            obj.train_error=train_error;
+            obj.vali_error=vali_error;
         end % end train
         
         function [corss_entropy_error_rate, error_rate] = validate(obj,x_validate,y_validate)

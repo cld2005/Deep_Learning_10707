@@ -1,5 +1,5 @@
 function plot_stats(train_error,vali_error)
-close all;
+%close all;
 figure
 plot(train_error(:,1))
 title('Combined cross-entropy Plots')

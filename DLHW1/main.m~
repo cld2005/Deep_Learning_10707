@@ -1,7 +1,7 @@
 rounds=5;
 anns=cell(5);
 for i=1:5
-    fprintf('round %d\n',i );
+    fprintf('round \n' )
     rng(i);
     num_hidden_layer=1;
     num_hidden_neuron=100;
