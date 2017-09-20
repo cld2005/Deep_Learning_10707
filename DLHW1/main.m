@@ -9,7 +9,7 @@ for i=1:rounds
     num_hidden_neuron=100;
     learning_rate=learning_rates(i);
     batch_size=1;
-    epoches=200;
+    epoches=1;
     momentum=0;
     anns{i} = ANN();
     anns{i}.ANN_load_data();
@@ -23,7 +23,7 @@ plot_stats_all(anns);
 %end
 for i=1:size(anns,1)
     ann = anns{i};
-    save(['ann' num2str(i)],'ann');
+    save(['ann_learning_rate' num2str(learning_rates(i)) '.mat'],'ann');
 end
 
 
