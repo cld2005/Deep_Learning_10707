@@ -6,6 +6,8 @@ classdef ANN < handle
         
         layers = [];
         num_of_layers = 0;
+        biases_all_zero={};
+        weights_all_zero={}; % for 2 hidden layers 100*784/100*100/10*100
         biases={};
         weights={}; % for 2 hidden layers 100*784/100*100/10*100
         preactication={}; % for 2 hidden layers 784/100/100/10
@@ -50,6 +52,10 @@ classdef ANN < handle
                 obj.preactication{i} = zeros(obj.layers(i),1);
                 obj.postactivation{i} = zeros(obj.layers(i),1);
             end
+            
+            obj.weights_all_zero=obj.create_new_all_zero(obj.weights);    
+
+            obj.biases_all_zero=obj.create_new_all_zero(obj.biases);
 
             
             
@@ -120,9 +126,9 @@ classdef ANN < handle
                 epoch_cross_entropy_error=0;
                 epoch_success_count=0;
                 
-                batch_d_weight=obj.create_new_all_zero(obj.weights);    
+                batch_d_weight=obj.weights_all_zero;   
 
-                batch_d_bias=obj.create_new_all_zero(obj.biases);
+                batch_d_bias=obj.biases_all_zero;
                 
                 
        
@@ -130,9 +136,9 @@ classdef ANN < handle
                 
                 for batch = 0:3000/batch_size-1
                     
-                    d_weight=obj.create_new_all_zero(obj.weights);
+                    d_weight=obj.weights_all_zero;
 
-                    d_bias=obj.create_new_all_zero(obj.biases);
+                    d_bias=obj.biases_all_zero;
             
                     
                    for sub_index = 1:batch_size
