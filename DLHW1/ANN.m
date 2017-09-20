@@ -18,7 +18,10 @@ classdef ANN < handle
         x_test=[];
         y_test=[];
         train_error=[];
-        vali_error=[]
+        vali_error=[];
+        
+        train_corss_entropy=[];
+        vali_corss_entropy=[];
     
     end
     
@@ -99,16 +102,16 @@ classdef ANN < handle
         
 
         
-        function zero_cell_array = create_new_all_zero (obj,cell_array)
+        function zero_cell_array = create_new_all_zero (~,cell_array)
             zero_cell_array={};
-            for i =1:size(cell_array,2)
+            parfor i =1:size(cell_array,2)
                 zero_cell_array{i} = zeros(size(cell_array{i},1),size(cell_array{i},2));
             end
         end
         function [train_error,vali_error] = train(obj,num_hidden_layer,num_hidden_neuron,learning_rate,batch_size,epoches,momentum)
         obj.init(num_hidden_layer,num_hidden_neuron);
-        train_error=[];
-        vali_error=[];
+        train_error=zeros(epoches,2);
+        vali_error=zeros(epoches,2);
             for epoch = 1:epoches
 
                 fprintf('Epoch %d\n',epoch);
@@ -131,7 +134,7 @@ classdef ANN < handle
                     d_bias=obj.create_new_all_zero(obj.biases);
             
                     
-                    for sub_index = 1:batch_size
+                   for sub_index = 1:batch_size
                         sample_index = batch*batch_size+sub_index;
                         [error_value,correct_count] = obj.forward_prop(obj.x_train(sample_index,:),obj.y_train(sample_index));
                         epoch_cross_entropy_error=epoch_cross_entropy_error+error_value;
@@ -160,9 +163,11 @@ classdef ANN < handle
                 classification_err_rate = 100*(1-epoch_success_count/sample_count);
 
                 [validation_err,validation_classification_err_rate ]=  obj.validate(obj.x_validate,obj.y_validate);
-                train_error=vertcat(train_error,[ave_error,classification_err_rate]);
-                vali_error = vertcat(vali_error,[validation_err,validation_classification_err_rate]);
-
+                train_error(epoch,1)=ave_error;
+                train_error(epoch,2)=classification_err_rate;
+                
+                vali_error(epoch,1)=validation_err;
+                vali_error(epoch,2)=validation_classification_err_rate;
                 fprintf('training cross entropy %f, error rate %f\n',ave_error,classification_err_rate);
                 fprintf('validate cross entropy %f, error rate %f\n',validation_err,validation_classification_err_rate);
             end % end epoch
@@ -173,7 +178,7 @@ classdef ANN < handle
         function [corss_entropy_error_rate, error_rate] = validate(obj,x_validate,y_validate)
             corss_entropy_error=zeros(size(x_validate,1),1);
             correct=zeros(size(x_validate,1),1);
-            for i=1:size(x_validate,1)
+            parfor i=1:size(x_validate,1)
                 [e,c]=obj.forward_prop(x_validate(i,:),y_validate(i));
                 corss_entropy_error(i)=e;
                 correct(i)=c;
@@ -184,13 +189,8 @@ classdef ANN < handle
 
         end
          
-        function y=show_x_train(obj)
-            y=obj.x_train;
-        end
         
-        function y=a(obj,m,n)
-            y=m+n;
-        end
+
     end
     
 end

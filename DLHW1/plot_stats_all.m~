@@ -1,0 +1,25 @@
+function plot_stats_all(anns)
+%close all;
+    figure
+    hold on
+    title('Combined cross-entropy Plots')
+
+for i=1:size(anns,1)    
+    plot(anns{i}.train_error(:,1))
+    plot(anns{i}.vali_error(:,1))
+    legend('training cross-entropy','Validation cross-entropy ')
+    
+end
+    hold off
+
+for i=1:size(anns,1)
+
+    figure
+    plot(anns{i}.train_error(:,2))
+    title('Combined Classfiction Error Plots')
+    hold on
+    plot(anns{i}.vali_error(:,2))
+    legend('training classfication error','Validation classfication error')
+    hold off
+end
+end
