@@ -14,18 +14,22 @@ for i=1:rounds
     anns{i} = ANN();
     anns{i}.ANN_load_data();
     [train_error,vali_error]=anns{i}.train(num_hidden_layer,num_hidden_neuron,learning_rate,batch_size,epoches,momentum);
+    try
+        save(['ann_hidden_layer' num2str(num_hidden_size(i)) '.mat'],'ann');
+    catch exception
+        fprintf('save round %d failed\n',i);
+    end
     
     %filter_plot(anns{i},num_hidden_neuron,i);
 end
 plot_stats_all(anns);
-%for i=1:rounds
-    %plot_stats(anns{i}.train_error,anns{i}.vali_error);
-%end
-for i=1:size(anns,1)
-    ann = anns{i};
-    save(['ann_hidden_layer' num2str(num_hidden_size(i)) '.mat'],'ann');
+
+try
+    save('anns_hidden_layer.mat','anns');
+catch exception
+    fprintf('final save failed\n');
 end
-save('anns_hidden_layer.mat','anns');
+
 
 
 
