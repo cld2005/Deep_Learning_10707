@@ -23,7 +23,7 @@ plot_stats_all(anns);
 %end
 for i=1:size(anns,1)
     ann = anns{i};
-    save(['ann_hidden_layer' num2str(learning_rates(i)) '.mat'],'ann');
+    save(['ann_hidden_layer' num2str(num_hidden_size(i)) '.mat'],'ann');
 end
 
 

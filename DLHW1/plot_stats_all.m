@@ -4,10 +4,11 @@ figure
 hold on
 title('Combined cross-entropy Plots')
 legendInfo={};
+line_width=2;
 for i=1:size(anns,1)    
-    plot(anns{i}.train_error(:,1))
+    plot(anns{i}.train_error(:,1),'LineWidth',line_width)
     legendInfo{end+1}=['training cross-entropy' num2str(i)];
-    plot(anns{i}.vali_error(:,1))
+    plot(anns{i}.vali_error(:,1),'LineWidth',line_width)
     legendInfo{end+1}=['Validation cross-entropy' num2str(i)];
     
 end
@@ -30,9 +31,9 @@ hold on
 title('Combined classication error')
 legendInfo={};
 for i=1:size(anns,1)    
-    plot(anns{i}.train_error(:,2))
+    plot(anns{i}.train_error(:,2),'LineWidth',line_width)
     legendInfo{end+1}=['training classication error' num2str(i)];
-    plot(anns{i}.vali_error(:,2))
+    plot(anns{i}.vali_error(:,2),'LineWidth',line_width)
     legendInfo{end+1}=['Validation classication error' num2str(i)];
     
 end

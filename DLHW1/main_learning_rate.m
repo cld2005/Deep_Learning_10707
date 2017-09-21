@@ -25,6 +25,7 @@ for i=1:size(anns,1)
     ann = anns{i};
     save(['ann_learning_rate' num2str(learning_rates(i)) '.mat'],'ann');
 end
+save('anns_learning_rate.mat','anns');
 
 
 
