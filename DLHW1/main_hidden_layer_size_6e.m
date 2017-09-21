@@ -9,7 +9,7 @@ for i=1:rounds
     num_hidden_neuron=num_hidden_size(i);
     learning_rate=0.01;
     batch_size=1;
-    epoches=200;
+    epoches=1;
     momentum=0.5;
     anns{i} = ANN();
     anns{i}.ANN_load_data();
@@ -25,6 +25,7 @@ for i=1:size(anns,1)
     ann = anns{i};
     save(['ann_hidden_layer' num2str(num_hidden_size(i)) '.mat'],'ann');
 end
+save('anns_hidden_layer.mat','anns');
 
 
 
