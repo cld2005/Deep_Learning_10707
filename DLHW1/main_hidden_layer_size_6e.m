@@ -9,7 +9,7 @@ for i=1:rounds
     num_hidden_neuron=num_hidden_size(i);
     learning_rate=0.01;
     batch_size=1;
-    epoches=1;
+    epoches=200;
     momentum=0.5;
     anns{i} = ANN();
     anns{i}.ANN_load_data();
