@@ -24,10 +24,14 @@ classdef ANN < handle
         
         train_corss_entropy=[];
         vali_corss_entropy=[];
+        lumbda=0;
     
     end
     
     methods
+        function set_lumbda (obj, l)
+            obj.lumbda=l;
+        end
         function init(obj,num_hidden_layer,num_hidden_neuron)
             obj.num_of_layers = num_hidden_layer+2;
             obj.layers(end+1)=784;% input layer is always 784
@@ -81,7 +85,14 @@ classdef ANN < handle
             
             obj.output = softmax(obj.postactivation{end});
             
-            corss_entropy_error = -1*log(dot(obj.output,result));
+            omiga=0;
+            if(obj.lumbda>0)
+                for i=1:size(obj.weights,2)
+                    omiga=omiga+sum(sum(obj.weights{i}));
+                end 
+            end
+            
+            corss_entropy_error = -1*log(dot(obj.output,result))+obj.lumbda*omiga;
             [~,indout]=max( obj.output);
             [~,indres]=max( result);
             correct= (indout==indres);
@@ -155,14 +166,14 @@ classdef ANN < handle
 
                     end
                     
-                    d_weight=cellfun(@(c1,c2) momentum*c1+(1.0/batch_size)*(c2) ,batch_d_weight,d_weight,'UniformOutput',false);
-                    batch_d_weight=d_weight;
-                    d_bias=cellfun(@(c1,c2) momentum*c1+(1.0/batch_size)*(c2) ,batch_d_bias,d_bias,'UniformOutput',false);
-                    batch_d_bias=d_bias;
+                    batch_d_weight=cellfun(@(c1,c2,c3) momentum*c1+(1.0/batch_size)*(c2)+ obj.lumbda*2*c3,batch_d_weight,d_weight,obj.weights,'UniformOutput',false); 
+                    %batch_d_weight=d_weight;
+                    batch_d_bias=cellfun(@(c1,c2) momentum*c1+(1.0/batch_size)*(c2) ,batch_d_bias,d_bias,'UniformOutput',false);
+                    %batch_d_bias=d_bias;
                     
-                    obj.weights = cellfun(@(c1,c2) c1-learning_rate*c2,obj.weights,d_weight,'UniformOutput',false);
+                    obj.weights = cellfun(@(c1,c2) c1-learning_rate*c2,obj.weights,batch_d_weight,'UniformOutput',false);
                    
-                    obj.biases = cellfun(@(c1,c2) c1-learning_rate*c2,obj.biases,d_bias,'UniformOutput',false);
+                    obj.biases = cellfun(@(c1,c2) c1-learning_rate*c2,obj.biases,batch_d_bias,'UniformOutput',false);
 
 
                 end % end batch
