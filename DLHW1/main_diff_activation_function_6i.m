@@ -1,4 +1,4 @@
-rounds=2;
+rounds=3;
 anns=cell(rounds,1);
 close all;
 act_func =['relu' 'tanh' 'sig'];
@@ -9,7 +9,7 @@ for i=1:rounds
     num_hidden_neuron=100;
     learning_rate=0.1;
     batch_size=1;
-    epoches=1;
+    epoches=200;
     momentum=0.5;
     anns{i} = ANN();
     anns{i}.ANN_load_data();
