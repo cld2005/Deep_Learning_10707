@@ -29,6 +29,10 @@ classdef ANN < handle
     end
     
     methods
+        function clear_training_data(obj)
+            obj.x_train=[];
+            obj.y_train=[];
+        end
         function set_lumbda (obj, l)
             obj.lumbda=l;
         end
@@ -191,6 +195,7 @@ classdef ANN < handle
             end % end epoch
             obj.train_error=train_error;
             obj.vali_error=vali_error;
+            obj.clear_training_data();
         end % end train
         
         function [corss_entropy_error_rate, error_rate] = validate(obj,x_validate,y_validate)

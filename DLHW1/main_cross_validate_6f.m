@@ -3,7 +3,7 @@ anns=cell(rounds,1);
 close all;
 %lumbdas=[0.0001,0.0001,0.001];
 %learning_rates=[0.1 0.1 0.1];
-lumbdas=[0.00005,0.00001];
+lumbdas=[0.00001,0.00005];
 learning_rates=[0.1 0.1];
 for i=1:rounds
     fprintf('round %d\n',i );
@@ -19,6 +19,7 @@ for i=1:rounds
     anns{i}.set_lumbda(lumbdas(i));
     [train_error,vali_error]=anns{i}.train(num_hidden_layer,num_hidden_neuron,learning_rate,batch_size,epoches,momentum);
     try
+        ann=anns{i};
         save(['ann_cross_validation_round' num2str(i+3) '.mat'],'ann');
     catch exception
         fprintf('save round %d failed\n',i);
