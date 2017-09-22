@@ -19,7 +19,7 @@ for i=1:rounds
     anns{i}.set_lumbda(lumbdas(i));
     [train_error,vali_error]=anns{i}.train(num_hidden_layer,num_hidden_neuron,learning_rate,batch_size,epoches,momentum);
     try
-        save(['ann_cross_validation_round' num2str(i) '.mat'],'ann');
+        save(['ann_cross_validation_round' num2str(i+3) '.mat'],'ann');
     catch exception
         fprintf('save round %d failed\n',i);
     end
@@ -29,7 +29,7 @@ end
 plot_stats_all(anns);
 
 try
-    save('anns_cross_validation_round.mat','anns');
+    save('anns_cross_validation_round4_5.mat','anns');
 catch exception
     fprintf('final save failed\n');
 end
