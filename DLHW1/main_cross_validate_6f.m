@@ -1,9 +1,10 @@
-rounds=3;
+rounds=2;
 anns=cell(rounds,1);
 close all;
-lumbdas=[0.0001,0.0001,0.001];
-%momentums=[0.5 0.5 0.5];
-learning_rates=[0.1 0.2 0.1];
+%lumbdas=[0.0001,0.0001,0.001];
+%learning_rates=[0.1 0.1 0.1];
+lumbdas=[0.00005,0.00001];
+learning_rates=[0.1 0.1];
 for i=1:rounds
     fprintf('round %d\n',i );
     %rng(i);
