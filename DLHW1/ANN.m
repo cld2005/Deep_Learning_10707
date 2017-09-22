@@ -25,10 +25,42 @@ classdef ANN < handle
         train_corss_entropy=[];
         vali_corss_entropy=[];
         lumbda=0;
+        activation='sig'
     
     end
     
     methods
+        function set_active_func(obj,x)
+            obj.activation=x;
+        end
+        function y=act_fuc(obj,x)
+            if obj.activation=='sig'
+                y=sigmoid(x);
+            elseif obj.activation=='relu'
+                y= poslin(x);
+            elseif obj.activation=='tanh'
+                y=tanh(x);
+            else
+                y=sigmoid(x);
+            end
+        end
+        
+        function y=d_act_fuc(obj,x)
+            if obj.activation=='sig'
+                y=d_sigmoid(x);
+            elseif obj.activation=='relu'
+                if(x>0)
+                    y=1;
+                else
+                    y=0;
+                end
+            elseif obj.activation=='tanh'
+                y=1-(tanh(x))^2;
+            else
+                y=d_sigmoid(x);
+            end
+        end
+        
         function clear_training_data(obj)
             obj.x_train=[];
             obj.y_train=[];
@@ -81,7 +113,7 @@ classdef ANN < handle
             for i = 2:obj.num_of_layers
                 obj.preactication{i} = obj.weights{i}*obj.postactivation{i-1}+obj.biases{i};
                 if i~= obj.num_of_layers
-                obj.postactivation{i} = arrayfun(@sigmoid,obj.preactication{i});
+                obj.postactivation{i} = arrayfun(@obj.act_fuc,obj.preactication{i});
                 elseif i==obj.num_of_layers
                 obj.postactivation{i}=obj.preactication{i};
                 end
@@ -113,7 +145,7 @@ classdef ANN < handle
                 d_weight{i}=grad_out*(transpose(obj.postactivation{i-1}));%?????? check 
                 d_bias{i}=grad_out;
                 grad_h = transpose(obj.weights{i})*grad_out;
-                grad_out=grad_h.*arrayfun(@d_sigmoid,obj.preactication{i-1});
+                grad_out=grad_h.*arrayfun(@obj.d_act_fuc,obj.preactication{i-1});
           
             end
             
