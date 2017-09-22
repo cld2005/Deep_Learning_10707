@@ -29,7 +29,7 @@ plot_stats_all(anns);
     %plot_stats(anns{i}.train_error,anns{i}.vali_error);
 %end
 try
-    save('anns_momentum.mat','anns');
+    save('anns_2_layer_momentum.mat','anns');
 catch exception
     fprintf('final save failed\n')
 end
