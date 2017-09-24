@@ -2,7 +2,7 @@ rounds=2;
 anns=cell(rounds,1);
 close all;
 %lumbdas=[0.0001,0.0001,0.001];
-%learning_rates=[0.1 0.1 0.1];
+%learning_rates=[0.1 0.2 0.1];
 lumbdas=[0.00001,0.00005];
 learning_rates=[0.1 0.1];
 for i=1:rounds
