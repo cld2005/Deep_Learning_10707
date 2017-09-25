@@ -1,7 +1,7 @@
 # Deep_Learning_10707
 
 
-##homework1
+## homework1
 
 
 In this assignment, the softwares are developed for question 6 a to i.
