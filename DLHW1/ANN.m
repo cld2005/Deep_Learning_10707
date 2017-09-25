@@ -262,10 +262,13 @@ classdef ANN < handle
                     d_bias=obj.biases_all_zero;
                     d_gamma = cell(1,obj.num_of_layers-1);
                     d_beta = cell(1,obj.num_of_layers-1);
-                    for i=2:obj.num_of_layers-1
-                        d_gamma{i}=[0];
-                        d_beta{i}=[0];
+                    if obj.batch_mode==1
+                        for i=2:obj.num_of_layers-1
+                            d_gamma{i}=[0];
+                            d_beta{i}=[0];
+                        end
                     end
+
                    for sub_index = 1:batch_size
                         sample_index = batch*batch_size+sub_index;
                         [error_value,correct_count] = obj.forward_prop(obj.x_train(sample_index,:),obj.y_train(sample_index));
@@ -276,8 +279,10 @@ classdef ANN < handle
    
                         d_weight= cellfun(@(c1,c2) c1+c2,d_weight,sub_d_weight,'UniformOutput',false);
                         d_bias= cellfun(@(c1,c2) c1+c2,d_bias,sub_d_bias,'UniformOutput',false);
-                        d_gamma = cellfun(@(c1,c2) c1+c2,sub_d_gamma,d_gamma,'UniformOutput',false);
-                        d_beta = cellfun(@(c1,c2) c1+c2,sub_d_beta,d_beta,'UniformOutput',false);
+                        if obj.batch_mode==1
+                            d_gamma = cellfun(@(c1,c2) c1+c2,sub_d_gamma,d_gamma,'UniformOutput',false);
+                            d_beta = cellfun(@(c1,c2) c1+c2,sub_d_beta,d_beta,'UniformOutput',false);
+                        end
                     end
                     
                     batch_d_weight=cellfun(@(c1,c2,c3) momentum*c1+(1.0/batch_size)*(c2)+ obj.lumbda*2*c3,batch_d_weight,d_weight,obj.weights,'UniformOutput',false); 
@@ -289,10 +294,10 @@ classdef ANN < handle
                     obj.biases = cellfun(@(c1,c2) c1-learning_rate*c2,obj.biases,batch_d_bias,'UniformOutput',false);
                     if obj.batch_mode==1
 
-                    for i=2:obj.num_of_layers-1
-                        obj.cache{i}.gamma =  obj.cache{i}.gamma - learning_rate*d_gamma{i}/batch_size;
-                        obj.cache{i}.beta =  obj.cache{i}.beta - learning_rate*d_beta{i}/batch_size;
-                    end
+                        for i=2:obj.num_of_layers-1
+                            obj.cache{i}.gamma =  obj.cache{i}.gamma - learning_rate*d_gamma{i}/batch_size;
+                            obj.cache{i}.beta =  obj.cache{i}.beta - learning_rate*d_beta{i}/batch_size;
+                        end
 
                     end
 
