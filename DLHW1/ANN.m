@@ -25,11 +25,19 @@ classdef ANN < handle
         train_corss_entropy=[];
         vali_corss_entropy=[];
         lumbda=0;
-        activation='sig'
+        activation='sig';
+        empty_cache = struct('gamma',1,'beta',0,'eps',0.00001);
+        cache ={};
+        batch_mode =0;
+        eps=0.00001
+        
     
     end
     
     methods
+        function set_batch_mode(obj,mode)
+            obj.batch_mode=mode;
+        end
         function set_active_func(obj,x)
             obj.activation=x;
         end
@@ -84,6 +92,9 @@ classdef ANN < handle
                 b=  sqrt(6)/(sqrt(obj.layers(i)+obj.layers(i-1)));
                 obj.weights{i}=2*b*(rand(size_x,size_y))-b; % the first layer does not have weights
                 obj.biases{i}  =  zeros(obj.layers(i),1);
+     
+                obj.cache{i} = obj.empty_cache;
+  
             end
             
             for i=1:length(obj.layers)
@@ -104,6 +115,26 @@ classdef ANN < handle
             [obj.x_train,obj.y_train,obj.x_validate,obj.y_validate,obj.x_test,obj.y_test] = dataLoad();
         end
         
+        function [out,cache] = batch_norm_fprop (obj,x,cache)
+            N=size(x,1);
+            mu=mean(x);
+            xmu = x-mu;
+            sq = xmu.^2;
+            var = sum(sq)/N;
+            sqrtvar=sqrt(var+cache.eps);
+            ivar = 1/sqrtvar;
+            xhat = xmu *ivar;
+            gammax = cache.gamma*xhat;
+            out = gammax + cache.beta;
+            
+            cache.xhat = xhat;
+            cache.xmu=xmu;
+            cache.ivar=ivar;
+            cache.sqrtvar=sqrtvar;
+            cache.var=var;
+            
+        end
+        
         function [corss_entropy_error, correct]=forward_prop(obj,x,y)
             obj.postactivation{1}=x';
 
@@ -111,7 +142,15 @@ classdef ANN < handle
             
             result(int32(y)+1)=int32(1);
             for i = 2:obj.num_of_layers
-                obj.preactication{i} = obj.weights{i}*obj.postactivation{i-1}+obj.biases{i};
+                raw_preactivation = obj.weights{i}*obj.postactivation{i-1}+obj.biases{i};
+                %if(i<obj.num_of_layers &&obj.batch_mode==1)
+                if(obj.batch_mode==1)
+                    [obj.preactication{i},obj.cache{i}]=obj.batch_norm_fprop(raw_preactivation,obj.cache{i});
+                else
+                    obj.preactication{i} =raw_preactivation;
+                end
+                
+                %obj.preactication{i} = obj.weights{i}*obj.postactivation{i-1}+obj.biases{i};
                 if i~= obj.num_of_layers
                 obj.postactivation{i} = arrayfun(@obj.act_fuc,obj.preactication{i});
                 elseif i==obj.num_of_layers
@@ -133,15 +172,24 @@ classdef ANN < handle
             [~,indres]=max( result);
             correct= (indout==indres);
         end
-        function [d_weight, d_bias] = back_prop (obj,y)
+        function [d_weight, d_bias,d_gamma,d_beta] = back_prop (obj,y)
             d_weight={};
             d_bias={};
+            d_gamma={};
+            d_beta={};
             result = zeros(10,1);
  
             result(int32(y)+1)=int32(1);
 
             grad_out = (obj.output- result);
             for i=(obj.num_of_layers):-1:2%first layer is the input x
+                %if(i<obj.num_of_layers&&obj.batch_mode==1)
+                if(obj.batch_mode==1)
+                    [dx,dgamma,dbeta]=obj.batch_norm_bprop(grad_out,obj.cache{i});
+                    grad_out=dx;
+                    d_gamma{i}=dgamma;
+                    d_beta{i}=dbeta;
+                end
                 d_weight{i}=grad_out*(transpose(obj.postactivation{i-1}));%?????? check 
                 d_bias{i}=grad_out;
                 grad_h = transpose(obj.weights{i})*grad_out;
@@ -152,6 +200,34 @@ classdef ANN < handle
             
             
             
+        end
+        
+        function [dx,dgamma,dbeta] = batch_norm_bprop (obj,dout,cache)
+            N= size(dout,1);
+            D = size(dout,2);
+            %9
+            dbeta = sum(dout);
+          
+            dgammax = dout;
+              %8
+            dgamma = dot(dgammax,cache.xhat);
+            dxhat = dgammax*cache.gamma;
+            %7
+            divar = dot(dxhat,cache.xmu);
+            dxmu1 = dxhat *cache.ivar;
+            %6
+            dsqrtvar=-1/(cache.sqrtvar)^2*divar;
+            %5
+            dvar = 0.5/(sqrt(cache.var+cache.eps))*dsqrtvar;
+            %4
+            dsq = 1/N* ones(N,D) *dvar;
+            
+            dxmu2 = 2 *cache.xmu.*dsq;
+            dx1 = (dxmu1+dxmu2);
+            dmu = -1 * sum(dxmu1+dxmu2);
+            
+            dx2 = 1/N *ones(N,D)*dmu;
+            dx = dx1+dx2;
         end
         
 
@@ -181,25 +257,34 @@ classdef ANN < handle
        
 
                 
-                for batch = 0:3000/batch_size-1
+                for batch = 0:floor(3000/batch_size)-1
                     
                     d_weight=obj.weights_all_zero;
 
                     d_bias=obj.biases_all_zero;
-            
-                    
+                    d_gamma = cell(1,obj.num_of_layers);
+                    d_beta = cell(1,obj.num_of_layers);
+                    if obj.batch_mode==1
+                        for i=2:obj.num_of_layers
+                            d_gamma{i}=[0];
+                            d_beta{i}=[0];
+                        end
+                    end
+
                    for sub_index = 1:batch_size
                         sample_index = batch*batch_size+sub_index;
                         [error_value,correct_count] = obj.forward_prop(obj.x_train(sample_index,:),obj.y_train(sample_index));
                         epoch_cross_entropy_error=epoch_cross_entropy_error+error_value;
                         epoch_success_count=epoch_success_count+correct_count;
                         sample_count=sample_count+1;
-                        [sub_d_weight,sub_d_bias] = obj.back_prop(obj.y_train(sample_index));
-                        
+                        [sub_d_weight,sub_d_bias,sub_d_gamma,sub_d_beta] = obj.back_prop(obj.y_train(sample_index));
+   
                         d_weight= cellfun(@(c1,c2) c1+c2,d_weight,sub_d_weight,'UniformOutput',false);
-                
                         d_bias= cellfun(@(c1,c2) c1+c2,d_bias,sub_d_bias,'UniformOutput',false);
-
+                        if obj.batch_mode==1
+                            d_gamma = cellfun(@(c1,c2) c1+c2,sub_d_gamma,d_gamma,'UniformOutput',false);
+                            d_beta = cellfun(@(c1,c2) c1+c2,sub_d_beta,d_beta,'UniformOutput',false);
+                        end
                     end
                     
                     batch_d_weight=cellfun(@(c1,c2,c3) momentum*c1+(1.0/batch_size)*(c2)+ obj.lumbda*2*c3,batch_d_weight,d_weight,obj.weights,'UniformOutput',false); 
@@ -207,9 +292,16 @@ classdef ANN < handle
                     batch_d_bias=cellfun(@(c1,c2) momentum*c1+(1.0/batch_size)*(c2) ,batch_d_bias,d_bias,'UniformOutput',false);
                     %batch_d_bias=d_bias;
                     
-                    obj.weights = cellfun(@(c1,c2) c1-learning_rate*c2,obj.weights,batch_d_weight,'UniformOutput',false);
-                   
+                    obj.weights = cellfun(@(c1,c2) c1-learning_rate*c2,obj.weights,batch_d_weight,'UniformOutput',false); 
                     obj.biases = cellfun(@(c1,c2) c1-learning_rate*c2,obj.biases,batch_d_bias,'UniformOutput',false);
+                    if obj.batch_mode==1
+
+                        for i=2:obj.num_of_layers-1
+                            obj.cache{i}.gamma =  obj.cache{i}.gamma - learning_rate*d_gamma{i}/batch_size;
+                            obj.cache{i}.beta =  obj.cache{i}.beta - learning_rate*d_beta{i}/batch_size;
+                        end
+
+                    end
 
 
                 end % end batch
