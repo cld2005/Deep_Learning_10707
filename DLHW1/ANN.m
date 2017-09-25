@@ -28,7 +28,7 @@ classdef ANN < handle
         activation='sig';
         empty_cache = struct('gamma',1,'beta',0,'eps',0.00001);
         cache ={};
-        batch_mode =1;
+        batch_mode =0;
         eps=0.00001
         
     
