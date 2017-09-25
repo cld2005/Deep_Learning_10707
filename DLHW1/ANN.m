@@ -255,7 +255,7 @@ classdef ANN < handle
        
 
                 
-                for batch = 0:3000/batch_size-1
+                for batch = 0:floor(3000/batch_size)-1
                     
                     d_weight=obj.weights_all_zero;
 
