@@ -42,6 +42,7 @@ classdef ANN < handle
             obj.activation=x;
         end
         function y=act_fuc(obj,x)
+           %{
             if obj.activation=='sig'
                 y=sigmoid(x);
             elseif obj.activation=='relu'
@@ -51,9 +52,13 @@ classdef ANN < handle
             else
                 y=sigmoid(x);
             end
+            %}
+            
+            y=sigmoid(x);
         end
         
         function y=d_act_fuc(obj,x)
+            %{
             if obj.activation=='sig'
                 y=d_sigmoid(x);
             elseif obj.activation=='relu'
@@ -67,6 +72,8 @@ classdef ANN < handle
             else
                 y=d_sigmoid(x);
             end
+            %}
+            y=d_sigmoid(x);
         end
         
         function clear_training_data(obj)
