@@ -45,7 +45,8 @@ classdef RBM  < handle
                     
                     negative_v=positive_v;
                     negative_h = positive_h;
-                    for i=1:min(1,k)
+                    k=max(1,k);
+                    for i=1:k
                         negative_v = obj.v_given_h(negative_h);
                         negative_h = obj.h_given_v(negative_v);
                     end
@@ -59,24 +60,32 @@ classdef RBM  < handle
                     obj.bias_vh =  obj.bias_vh +learning_rate*d_bias_vh;
                     
                 end
-                train_error(epoch,1)= cal_cross_entropy(obj.x_train);
-                vali_error(epoch,1) = cal_cross_entropy(obj.x_validation);
+                train_error(epoch,1)= obj.cal_cross_entropy(obj.x_train);
+                vali_error(epoch,1) = obj.cal_cross_entropy(obj.x_validate);
+                
+               fprintf('training cross entropy %f\n',train_error(epoch,1));
+               fprintf('validate cross entropy %f\n',vali_error(epoch,1));
 
             end
         end
         
         function h = h_given_v(obj,v)
-            h = sigmoid(v*transpose(obj.weight)+obj.bias_vh);
+            h= v*transpose(obj.weights)+obj.bias_vh;
+            h = arrayfun(@(x) sigmoid(x),h);
         end
         
         function v = v_given_h(obj,h)
-            v = sigmoid(h*transpose(obj.weight)+obj.bias_hv);
+            v = h*obj.weights+obj.bias_hv;
+            v = arrayfun(@(x) sigmoid(x),v);
         end
         
         function cross_entropy=cal_cross_entropy(obj,positive_v)
-            h = sigmoid(positive_v*transpose(obj.weight)+obj.bias_vh);
-            v = sigmoid(h*transpose(obj.weight)+obj.bias_hv);
-            cross_entropy = -mean (sum (positive_v*log(v)+(1-positive_v)*log(1-v)));
+            h = positive_v*transpose(obj.weights)+obj.bias_vh;
+            h = arrayfun(@(x) sigmoid(x),h);
+            
+            v = h*obj.weights+obj.bias_hv;
+            v = arrayfun(@(x) sigmoid(x),v);
+            cross_entropy = -mean (sum (dot(positive_v,log(v))+dot((1-positive_v),log(1-v))));
         end
 
     end
