@@ -106,6 +106,12 @@ classdef RBM  < handle
             temp = sum(temp,2);
             cross_entropy = -mean (temp);
         end
+        
+        function clear_data(obj)
+            obj.x_train=[];
+            obj.x_validate=[];
+            obj.x_test=[];
+        end
 
     end
     
