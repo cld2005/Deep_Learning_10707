@@ -1,9 +1,16 @@
 close all;
-rmb = RBM();
-num_visible=784;
-num_hiddenn=100;
-learning_rate=0.1;
-batch_size=1;
-epoches=200;
-k=1;
-[train_error,vali_error] = rmb.train(num_visible,num_hiddenn,learning_rate,batch_size,epoches,k);
+rounds=1;
+rbms=cell(rounds,1);
+for i=1:rounds
+    fprintf('round %d\n',i );
+
+    num_visible=784;
+    num_hiddenn=100;
+    learning_rate=0.1;
+    batch_size=1;
+    epoches=5;
+    k=1;
+    rbms{i} = RBM();
+    [train_error,vali_error] = rbms{i}.train(num_visible,num_hiddenn,learning_rate,batch_size,epoches,k);
+end
+plot_stats_all(rbms);

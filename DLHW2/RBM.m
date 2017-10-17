@@ -11,6 +11,8 @@ classdef RBM  < handle
         weights=[];
         bias_vh=[];
         bias_hv=[];
+        train_error=[];
+        vali_error=[]
         
         
     end
@@ -36,7 +38,10 @@ classdef RBM  < handle
             
             for epoch = 1:epoches
                 fprintf('Epoch %d\n',epoch);
+                bathc_cross_entropy=0;
+                count=1;
                 for batch=1:floor(3000/batch_size)-1
+                    count=count+1;
                     start_bond  = 1+(batch-1)*batch_size;
                     end_bond=batch*batch_size;
                     batch_data = obj.x_train(start_bond:end_bond,:);
@@ -59,14 +64,19 @@ classdef RBM  < handle
                     obj.bias_hv =  obj.bias_hv + learning_rate*d_bias_hv;
                     obj.bias_vh =  obj.bias_vh + learning_rate*d_bias_vh;
                     
+                    bathc_cross_entropy = bathc_cross_entropy+ obj.cal_cross_entropy(positive_v);
+                    
                 end
-                train_error(epoch,1)= obj.cal_cross_entropy(obj.x_train);
+                train_error(epoch,1)= bathc_cross_entropy/count;
                 vali_error(epoch,1) = obj.cal_cross_entropy(obj.x_validate);
                 
                fprintf('training cross entropy %f\n',train_error(epoch,1));
                fprintf('validate cross entropy %f\n',vali_error(epoch,1));
 
             end
+            
+            obj.vali_error=vali_error;
+            obj.train_error=train_error;
         end
         
         function h = h_given_v(obj,v)
