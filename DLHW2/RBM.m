@@ -30,8 +30,8 @@ classdef RBM  < handle
         end
         function [train_error,vali_error] = train(obj,num_visible,num_hiddenn,learning_rate,batch_size,epoches,k)
             obj.init(num_visible,num_hiddenn);
-            train_error=zeros(epoches,2);
-            vali_error=zeros(epoches,2);
+            train_error=zeros(epoches,1);
+            vali_error=zeros(epoches,1);
             
             
             for epoch = 1:epoches
@@ -58,8 +58,10 @@ classdef RBM  < handle
                     obj.bias_hv =  obj.bias_hv +learning_rate*d_bias_hv;
                     obj.bias_vh =  obj.bias_vh +learning_rate*d_bias_vh;
                     
-                    
                 end
+                train_error(epoch,1)= cal_cross_entropy(obj.x_train);
+                vali_error(epoch,1) = cal_cross_entropy(obj.x_validation);
+
             end
         end
         
@@ -69,6 +71,12 @@ classdef RBM  < handle
         
         function v = v_given_h(obj,h)
             v = sigmoid(h*transpose(obj.weight)+obj.bias_hv);
+        end
+        
+        function cross_entropy=cal_cross_entropy(obj,positive_v)
+            h = sigmoid(positive_v*transpose(obj.weight)+obj.bias_vh);
+            v = sigmoid(h*transpose(obj.weight)+obj.bias_hv);
+            cross_entropy = -mean (sum (positive_v*log(v)+(1-positive_v)*log(1-v)));
         end
 
     end

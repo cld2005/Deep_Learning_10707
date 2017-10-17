@@ -9,8 +9,8 @@ classdef RBM  < handle
         num_visible;
         num_hiddenn;
         weights=[];
-        bias_h=[];
-        bias_v=[];
+        bias_vh=[];
+        bias_hv=[];
         
         
     end
@@ -25,8 +25,8 @@ classdef RBM  < handle
             obj.RBM_load_data();
             %obj.weights=rand(obj.num_visible,obj.num_hiddenn);
             obj.weights=normrnd(0,1,[obj.num_hiddenn obj.num_visible ]);% 100*784 initialize to random gaussian
-            obj.bias_h=zeros(1,obj.num_hiddenn);
-            obj.bias_v=zeros(1,obj.num_visible);
+            obj.bias_vh=zeros(1,obj.num_hiddenn);%1*100
+            obj.bias_hv=zeros(1,obj.num_visible);%1*784
         end
         function [train_error,vali_error] = train(obj,num_visible,num_hiddenn,learning_rate,batch_size,epoches,k)
             obj.init(num_visible,num_hiddenn);
@@ -43,15 +43,20 @@ classdef RBM  < handle
                     positive_v = batch_data;
                     positive_h = obj.h_given_v(positive_v);
                     
-                    negative_v ;
+                    negative_v=positive_v;
                     negative_h = positive_h;
                     for i=1:min(1,k)
                         negative_v = obj.v_given_h(negative_h);
                         negative_h = obj.h_given_v(negative_v);
                     end
                     
-                    d_w = (positive_h'*positive_v)
+                    d_weights = (positive_h'*positive_v- negative_h'*negative_v);
+                    d_bias_vh = mean(positive_h-negative_h);
+                    d_bias_hv = mean (positive_v-negative_v);
                     
+                    obj.weights = obj.weights+ learning_rate*d_weights;
+                    obj.bias_hv =  obj.bias_hv +learning_rate*d_bias_hv;
+                    obj.bias_vh =  obj.bias_vh +learning_rate*d_bias_vh;
                     
                     
                 end
@@ -59,11 +64,15 @@ classdef RBM  < handle
         end
         
         function h = h_given_v(obj,v)
-            h = sigmoid(v*transpose(obj.weight)+obj.bias_v);
+            h = sigmoid(v*transpose(obj.weight)+obj.bias_vh);
         end
         
         function v = v_given_h(obj,h)
-            v = sigmoid(h*transpose(obj.weight)+obj.bias_h);
+            v = sigmoid(h*transpose(obj.weight)+obj.bias_hv);
+        end
+        
+        function cross_entropy(obj,positive_v)
+            h = sigmoid(positive_v*transpose(obj.weight)+obj.bias_vh);
         end
 
     end
