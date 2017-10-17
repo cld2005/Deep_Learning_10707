@@ -51,17 +51,17 @@ classdef RBM  < handle
                         negative_h = obj.h_given_v(negative_v);
                     end
                     
-                    d_weights = (positive_h'*positive_v- negative_h'*negative_v);
+                    d_weights = (positive_h'*positive_v - negative_h'*negative_v);
                     d_bias_vh = mean(positive_h-negative_h);
                     d_bias_hv = mean (positive_v-negative_v);
                     
-                    obj.weights = obj.weights+ learning_rate*d_weights;
-                    obj.bias_hv =  obj.bias_hv +learning_rate*d_bias_hv;
-                    obj.bias_vh =  obj.bias_vh +learning_rate*d_bias_vh;
+                    obj.weights = obj.weights + learning_rate*d_weights;
+                    obj.bias_hv =  obj.bias_hv + learning_rate*d_bias_hv;
+                    obj.bias_vh =  obj.bias_vh + learning_rate*d_bias_vh;
                     
                 end
-                train_error(epoch,1)= cal_cross_entropy(obj.x_train);
-                vali_error(epoch,1) = cal_cross_entropy(obj.x_validation);
+                train_error(epoch,1)= obj.cal_cross_entropy(obj.x_train);
+                vali_error(epoch,1) = obj.cal_cross_entropy(obj.x_validate);
                 
                fprintf('training cross entropy %f\n',train_error(epoch,1));
                fprintf('validate cross entropy %f\n',vali_error(epoch,1));
@@ -75,16 +75,22 @@ classdef RBM  < handle
         end
         
         function v = v_given_h(obj,h)
-            v = h*transpose(obj.weights)+obj.bias_hv;
+            v = h*obj.weights+obj.bias_hv;
             v = arrayfun(@(x) sigmoid(x),v);
         end
+        
+        function bina = binarize (obj,arr)
+            bina=binornd(1)
+        end
+        
         
         function cross_entropy=cal_cross_entropy(obj,positive_v)
             h = positive_v*transpose(obj.weights)+obj.bias_vh;
             h = arrayfun(@(x) sigmoid(x),h);
-            v = sigmoid(h*transpose(obj.weights)+obj.bias_hv);
+            
+            v = h*obj.weights+obj.bias_hv;
             v = arrayfun(@(x) sigmoid(x),v);
-            cross_entropy = -mean (sum (positive_v*log(v)+(1-positive_v)*log(1-v)));
+            cross_entropy = -mean (sum (dot(positive_v,log(v))+dot((1-positive_v),log(1-v))));
         end
 
     end

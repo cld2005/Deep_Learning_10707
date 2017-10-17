@@ -37,8 +37,8 @@ classdef RBM  < handle
             for epoch = 1:epoches
                 fprintf('Epoch %d\n',epoch);
                 for batch=1:floor(3000/batch_size)-1
-                    start_bond  = 1+(batch-1)*30;
-                    end_bond=batch*30;
+                    start_bond  = 1+(batch-1)*batch_size;
+                    end_bond=batch*batch_size;
                     batch_data = obj.x_train(start_bond:end_bond,:);
                     positive_v = batch_data;
                     positive_h = obj.h_given_v(positive_v);
@@ -51,13 +51,13 @@ classdef RBM  < handle
                         negative_h = obj.h_given_v(negative_v);
                     end
                     
-                    d_weights = (positive_h'*positive_v- negative_h'*negative_v);
+                    d_weights = (positive_h'*positive_v - negative_h'*negative_v);
                     d_bias_vh = mean(positive_h-negative_h);
-                    d_bias_hv = mean (positive_v-negative_v);
+                    d_bias_hv = mean(positive_v-negative_v);
                     
-                    obj.weights = obj.weights+ learning_rate*d_weights;
-                    obj.bias_hv =  obj.bias_hv +learning_rate*d_bias_hv;
-                    obj.bias_vh =  obj.bias_vh +learning_rate*d_bias_vh;
+                    obj.weights = obj.weights + learning_rate*d_weights;
+                    obj.bias_hv =  obj.bias_hv + learning_rate*d_bias_hv;
+                    obj.bias_vh =  obj.bias_vh + learning_rate*d_bias_vh;
                     
                 end
                 train_error(epoch,1)= obj.cal_cross_entropy(obj.x_train);
@@ -72,12 +72,19 @@ classdef RBM  < handle
         function h = h_given_v(obj,v)
             h= v*transpose(obj.weights)+obj.bias_vh;
             h = arrayfun(@(x) sigmoid(x),h);
+            %h=arrayfun(@(x) obj.binarize(x) ,h);
         end
         
         function v = v_given_h(obj,h)
             v = h*obj.weights+obj.bias_hv;
             v = arrayfun(@(x) sigmoid(x),v);
+            %v=arrayfun(@(x) obj.binarize(x) ,v);
         end
+        
+        function bina = binarize (obj,arr)
+            bina=binornd(1,arr);
+        end
+        
         
         function cross_entropy=cal_cross_entropy(obj,positive_v)
             h = positive_v*transpose(obj.weights)+obj.bias_vh;
@@ -85,7 +92,9 @@ classdef RBM  < handle
             
             v = h*obj.weights+obj.bias_hv;
             v = arrayfun(@(x) sigmoid(x),v);
-            cross_entropy = -mean (sum (dot(positive_v,log(v))+dot((1-positive_v),log(1-v))));
+            temp =positive_v.*log(v)+(1-positive_v).*log(1-v);
+            temp = sum(temp,2);
+            cross_entropy = -mean (temp);
         end
 
     end
