@@ -1,0 +1,21 @@
+function  samples  = sample(rbm)
+
+
+    rbm.RBM_load_data();
+    
+    x = obj.x_training(1:100);
+    p_v=x;
+    p_h = obj.h_given_v(x);
+    
+    
+    n_v = obj.v_given_h(p_h);
+    n_h = p_h;
+    
+    for i=1:100
+        n_v=
+        
+    end
+    
+
+end
+

@@ -29,12 +29,20 @@ classdef ANN < handle
         empty_cache = struct('gamma',1,'beta',0,'eps',0.00001);
         cache ={};
         batch_mode =0;
-        eps=0.00001
+        eps=0.00001;
+        pre_loaded_weights=[];
+        load_exernal_weights=0;
         
     
     end
     
     methods
+        function set_pre_load_weight(obj,weight)
+            obj.pre_loaded_weights=weight;
+        end
+        function set_load_exernal_weights(obj,val)
+            obj.load_exernal_weights=val;
+        end
         function set_batch_mode(obj,mode)
             obj.batch_mode=mode;
         end
@@ -102,6 +110,10 @@ classdef ANN < handle
      
                 obj.cache{i} = obj.empty_cache;
   
+            end
+            
+            if obj.load_exernal_weights~=0
+                 obj.weights{2}=obj.pre_loaded_weights;
             end
             
             for i=1:length(obj.layers)
