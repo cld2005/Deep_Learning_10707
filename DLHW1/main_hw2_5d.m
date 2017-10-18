@@ -24,7 +24,7 @@ plot_stats_all(anns);
 
 for i=1:size(anns,1)
     ann = anns{i};
-    save('hw2_5c.mat','ann');
+    save('hw2_5d.mat','ann');
 end
 
 
