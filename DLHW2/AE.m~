@@ -31,6 +31,7 @@ classdef AE < handle
         eps=0.00001;
         pre_loaded_weights=[];
         load_exernal_weights=0;
+        dropout_rate=0;
         
     
     end
@@ -38,7 +39,9 @@ classdef AE < handle
     methods
 
 
- 
+        function set_dropout_rate(obj,rate)
+            obj.dropout_rate=rate;
+        end 
  
         function y=act_fuc(~,x)
 
@@ -93,6 +96,11 @@ classdef AE < handle
         
         function [corss_entropy_error]=forward_prop(obj,x)
             obj.postactivation{1}=x';
+            
+                    if obj.dropout_rate~=0
+                        mask = randsrc(1,784,[1 0; 1-obj.dropout_rate obj.dropout_rate]);
+                        positive_v=mask.*positive_v;
+                    end
 
             
             for i = 2:obj.num_of_layers
@@ -110,11 +118,12 @@ classdef AE < handle
             end
             
             obj.output = obj.postactivation{3};
-            corss_entropy_error = sum(x.*log(obj.output)+(1-x).*log(1-obj.output));
+            corss_entropy_error = -sum(x'.*log(obj.output)+(1-x').*log(1-obj.output));
      
    
         end
         function [d_weight_out, d_bias] = back_prop (obj,x)
+            x=x';
             d_weight={};
             d_bias={};
 
@@ -125,7 +134,15 @@ classdef AE < handle
  
                 d_weight{i}=grad_out*(transpose(obj.postactivation{i-1}));%?????? check 
                 d_bias{i}=grad_out;
-                grad_h = transpose(obj.weights{i})*grad_out;
+                %grad_h = transpose(obj.weights)*grad_out;
+                
+                if i==2
+                    grad_h = transpose(obj.weights)*grad_out;
+                elseif i ==3
+                    grad_h = obj.weights*grad_out;
+
+                end
+                
                 grad_out=grad_h.*arrayfun(@obj.d_act_fuc,obj.preactication{i-1});
           
             end
@@ -155,10 +172,11 @@ classdef AE < handle
         
         
         
-        function train(obj,num_hidden_layer,num_hidden_neuron,learning_rate,batch_size,epoches,momentum)
-        obj.init(num_hidden_layer,num_hidden_neuron);
+        function [train_error,vali_error] = train(obj,num_hidden_layer,num_hidden_neuron,learning_rate,batch_size,epoches,momentum)
+        obj.init(num_hidden_neuron,num_hidden_layer);
         obj.train_error=zeros(epoches,1);
         obj.vali_error=zeros(epoches,1);
+        obj.ANN_load_data();
         
             for epoch = 1:epoches
 
@@ -185,27 +203,34 @@ classdef AE < handle
 
                    for sub_index = 1:batch_size
                         sample_index = batch*batch_size+sub_index;
-                        [error_value] = obj.forward_prop(obj.x_train(sample_index,:));
+                        x=obj.x_train(sample_index,:);
+                        [error_value] = obj.forward_prop(x);
                         
                         epoch_cross_entropy_error=epoch_cross_entropy_error+error_value;
                         
                         sample_count=sample_count+1;
-                        [sub_d_weight,sub_d_bias] = obj.back_prop(obj.y_train(sample_index));
+                        [sub_d_weight,sub_d_bias] = obj.back_prop(x);
    
-                        d_weight= cellfun(@(c1,c2) c1+c2,d_weight,sub_d_weight,'UniformOutput',false);
+                        %d_weight= cellfun(@(c1,c2) c1+c2,d_weight,sub_d_weight,'UniformOutput',false);
+                        d_weight=d_weight+sub_d_weight;
                         d_bias= cellfun(@(c1,c2) c1+c2,d_bias,sub_d_bias,'UniformOutput',false);
+                        
                         if obj.batch_mode==1
                             d_gamma = cellfun(@(c1,c2) c1+c2,sub_d_gamma,d_gamma,'UniformOutput',false);
                             d_beta = cellfun(@(c1,c2) c1+c2,sub_d_beta,d_beta,'UniformOutput',false);
                         end
                     end
                     
-                    batch_d_weight=cellfun(@(c1,c2,c3) momentum*c1+(1.0/batch_size)*(c2)+ obj.lumbda*2*c3,batch_d_weight,d_weight,obj.weights,'UniformOutput',false); 
+                    %batch_d_weight=cellfun(@(c1,c2,c3) momentum*c1+(1.0/batch_size)*(c2)+ obj.lumbda*2*c3,batch_d_weight,d_weight,obj.weights,'UniformOutput',false); 
+                    
+                    batch_d_weight=momentum*batch_d_weight+(1.0/batch_size)*d_weight+obj.lumbda*2*obj.weights;
                     %batch_d_weight=d_weight;
                     batch_d_bias=cellfun(@(c1,c2) momentum*c1+(1.0/batch_size)*(c2) ,batch_d_bias,d_bias,'UniformOutput',false);
                     %batch_d_bias=d_bias;
                     
-                    obj.weights = cellfun(@(c1,c2) c1-learning_rate*c2,obj.weights,batch_d_weight,'UniformOutput',false); 
+                    %obj.weights = cellfun(@(c1,c2) c1-learning_rate*c2,obj.weights,batch_d_weight,'UniformOutput',false); 
+                    
+                    obj.weights = obj.weights-learning_rate*batch_d_weight;
                     obj.biases = cellfun(@(c1,c2) c1-learning_rate*c2,obj.biases,batch_d_bias,'UniformOutput',false);
 
 
@@ -213,12 +238,14 @@ classdef AE < handle
                 end % end batch
                 ave_error = epoch_cross_entropy_error/sample_count;
 
-                [validation_err ]=  obj.validate(obj.x_validate,obj.y_validate);
+                [validation_err ]=  obj.validate(obj.x_validate);
                 obj.train_error(epoch,1)=ave_error;
                 obj.vali_error(epoch,1)=validation_err;
-                fprintf('training cross entropy %f, error rate %f\n',ave_error);
-                fprintf('validate cross entropy %f, error rate %f\n',validation_err);
+                fprintf('training cross entropy %f\n',ave_error);
+                fprintf('validate cross entropy %f\n',validation_err);
             end % end epoch
+            train_error=obj.train_error;
+            vali_error=obj.vali_error;
   
             obj.clear_training_data();
         end % end train

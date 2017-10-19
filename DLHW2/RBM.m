@@ -12,12 +12,14 @@ classdef RBM  < handle
         bias_vh=[];
         bias_hv=[];
         train_error=[];
-        vali_error=[]
+        vali_error=[];
+
         
         
     end
     
     methods
+
         function RBM_load_data(obj)
             [obj.x_train,obj.x_validate,obj.x_test]=LoadData();
         end
@@ -46,6 +48,8 @@ classdef RBM  < handle
                     end_bond=batch*batch_size;
                     batch_data = obj.x_train(start_bond:end_bond,:);
                     positive_v = batch_data;
+
+                    
                     positive_h = obj.h_given_v(positive_v);
                     
                     negative_v=positive_v;

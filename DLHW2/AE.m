@@ -31,6 +31,7 @@ classdef AE < handle
         eps=0.00001;
         pre_loaded_weights=[];
         load_exernal_weights=0;
+        dropout_rate=0;
         
     
     end
@@ -38,7 +39,9 @@ classdef AE < handle
     methods
 
 
- 
+        function set_dropout_rate(obj,rate)
+            obj.dropout_rate=rate;
+        end 
  
         function y=act_fuc(~,x)
 
@@ -93,6 +96,11 @@ classdef AE < handle
         
         function [corss_entropy_error]=forward_prop(obj,x)
             obj.postactivation{1}=x';
+            
+            if obj.dropout_rate~=0
+                mask = randsrc(784,1,[1 0; 1-obj.dropout_rate obj.dropout_rate]);
+                obj.postactivation{1}=mask.*obj.postactivation{1};
+            end
 
             
             for i = 2:obj.num_of_layers
