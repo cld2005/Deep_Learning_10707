@@ -1,5 +1,5 @@
 close all;
-ks=[5 , 10 , 20];
+ks=[20];
 rounds=size(ks,2);
 rbms=cell(rounds,1);
 for i=1:rounds
