@@ -1,3 +1,4 @@
+clear all;
 close all;
 num_hiddenn_sizes=[50 100 200 500];
 rounds=size(num_hiddenn_sizes,2);
@@ -8,6 +9,7 @@ for i=1:rounds
     if i==2
         continue
     end
+    
     fprintf('round %d\n',i );
 
     num_visible=784;
