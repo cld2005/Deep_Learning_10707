@@ -75,7 +75,7 @@ classdef AE < handle
                 obj.biases{i}  =  zeros(obj.layers(i),1);
             end
             
-            obj.weights = normrnd(0,1, [num_hidden_neuron,784] );
+            obj.weights = normrnd(0,0.1, [num_hidden_neuron,784] );
             
             
             for i=1:length(obj.layers)
