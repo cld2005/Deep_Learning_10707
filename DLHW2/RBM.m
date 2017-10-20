@@ -86,13 +86,14 @@ classdef RBM  < handle
         function h = h_given_v(obj,v)
             h= v*transpose(obj.weights)+obj.bias_vh;
             h = arrayfun(@(x) sigmoid(x),h);
-            %h=arrayfun(@(x) obj.binarize(x) ,h);
+            h=arrayfun(@(x) obj.binarize(x) ,h);
         end
         
         function v = v_given_h(obj,h)
-            v = h*obj.weights+obj.bias_hv;
+            temp= h*obj.weights;
+            v = temp+obj.bias_hv;
             v = arrayfun(@(x) sigmoid(x),v);
-            %v=arrayfun(@(x) obj.binarize(x) ,v);
+            v=arrayfun(@(x) obj.binarize(x) ,v);
         end
         
         function bina = binarize (obj,arr)
