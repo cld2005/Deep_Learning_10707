@@ -1,11 +1,12 @@
 function  samples  = sample(rbm,step,num_sample)
 
 
-    rbm.RBM_load_data();
+    %rbm.RBM_load_data();
     
-    x = rbm.x_train(1:num_sample,:);
+    %x = rbm.x_train(1:num_sample,:);
+    x = rand(100,784);
     p_v=x;
-    p_h = rbm.h_given_v(x);
+    p_h = rbm.h_given_v(p_v);
     
     
     n_v = rbm.v_given_h(p_h);

@@ -22,13 +22,19 @@ for i=1:rounds
     [train_error,vali_error] = rbms{i}.train(num_visible,num_hiddenn,learning_rate,batch_size,epoches,k);
     %filter_plot(rbms{i},num_hiddenn,i);
     rbms{i}.clear_data();
+    rbm=rbms{i};
+    try
+    save(['rbm_5g' num2str(num_hiddenn_sizes(i)) '.mat'],'rbm');
+    catch exception
+    fprintf('save  round %d failed', i);
+    end
 end
 
 plot_stats_all(rbms);
 
 
 try
-    save('rbm_f.mat','rbms');
+    save('rbm_5g.mat','rbms');
 catch exception
     fprintf('final save failed\n');
 end

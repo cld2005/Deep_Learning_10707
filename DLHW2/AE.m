@@ -56,7 +56,9 @@ classdef AE < handle
         
         function clear_training_data(obj)
             obj.x_train=[];
-            obj.y_train=[];
+            obj.x_validate=[];
+            obj.x_test=[];
+            
         end
 
         function init(obj,num_hidden_neuron,num_hidden_layer)
