@@ -12,7 +12,7 @@ autoencoder = AE();
 filter_plot(autoencoder,num_hidden_neuron,1);
 
 try
-save('rbm_5e.mat','autoencoder');
+save('autoencoder_5e.mat','autoencoder');
 catch exception
 fprintf('save final round failed');
 end
